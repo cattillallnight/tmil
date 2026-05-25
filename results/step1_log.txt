@@ -1,0 +1,56 @@
+﻿============================================================
+TMIL-ETH ΓÇö Step 1: Dataset Preparation & Analysis
+============================================================
+
+[1] Phisher accounts loaded: 7,067
+
+[2] Pilot study: sampled 50 phisher accounts for burst verification
+
+[3] Loading phisher transactions for pilot study...
+  Reading OUT: phisher_transaction_out.csv
+  Reading IN:  phisher_transaction_in.csv
+    Accounts with transactions: 37
+
+[4] Sampling normal account addresses from normal TX OUT (scanning first 2M rows)...
+    Normal candidate accounts found: 190,767
+    Pilot normal accounts sampled: 50
+
+[5] Loading normal transactions for pilot (scanning up to 3M rows)...
+  Reading OUT: normal_eoa_transaction_out_slice_1000K.csv
+  Reading IN:  normal_eoa_transaction_in_slice_1000K.csv
+    Normal accounts with transactions: 50
+
+[6] Computing burst features for pilot study...
+
+[7] Pilot Study Results:
+--------------------------------------------------
+
+Phishing accounts (n=36):
+  bag_purity_proxy min:    0.0000
+  bag_purity_proxy median: 0.0382  (target >= 0.05)
+  bag_purity_proxy 90th:   0.2520
+  [OK] Meets target (median >= 0.05): False
+
+Normal accounts (n=50):
+  bag_purity_proxy median: 0.0000
+
+[8] Global Dataset Statistics (BERT4ETH benchmark):
+  Phishing accounts (ground truth): 7,067
+  Normal accounts (paper 1:4 ratio): 28,272
+  Total accounts (paper):           35,340
+  Normal candidates found in TX:    190,770
+  (After removing phisher overlap): 190,767
+
+Phisher TX-OUT sequence lengths (per account):
+  Median: 3
+  Mean:   40.7
+  Max:    60410
+  Min:    1
+  Accounts with TX out: 3589
+
+Pilot study CSV: C:\Users\Thuy Quyen\Downloads\completeproduce\tmil_eth\results\step1_pilot_study.csv
+
+Dataset stats: C:\Users\Thuy Quyen\Downloads\completeproduce\tmil_eth\results\step1_dataset_stats.json
+
+Γ£ô Step 1 complete.
+

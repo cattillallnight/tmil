@@ -1,0 +1,65 @@
+{
+  "model_architecture": {
+    "input_dim": 68,
+    "hand_crafted_dim": 4,
+    "bert_dim": 64,
+    "proj_dim": 64,
+    "attn_hidden": 128,
+    "mlp_hidden": 256,
+    "total_params": 95425
+  },
+  "triple_pooling": {
+    "z_attn": "\u03a3 s_i \u00b7 x_i (attention-weighted mean)",
+    "z_mean": "mean_i(x_i) (global behavioral context)",
+    "z_max": "max_i(x_i) (single large spike)",
+    "concat_dim": "3 \u00d7 proj_dim = 192"
+  },
+  "compound_loss": {
+    "L_total": "L_BCE + \u03bb1*L_consistency + \u03bb2*L_contrast",
+    "lambda1": 0.3,
+    "lambda2": 0.2,
+    "phish_mask": "y_A == 1 (consistency/contrast apply ONLY to phishing bags)"
+  },
+  "demo_results": [
+    {
+      "address": "0xca4da1753336aa8340710e0e1a8c0bee2bfbf56c",
+      "label": 1,
+      "n_tx": 24,
+      "n_windows": 1,
+      "window_scores": [
+        0.5291115045547485
+      ],
+      "account_score": 0.5291115045547485
+    },
+    {
+      "address": "0xd821dfb705333d2c16e0c0c0be75ce360cca566a",
+      "label": 1,
+      "n_tx": 4,
+      "n_windows": 1,
+      "window_scores": [
+        0.5181729793548584
+      ],
+      "account_score": 0.5181729793548584
+    },
+    {
+      "address": "0xbf33d6da59de56a4a45269999bc185fb7506da1a",
+      "label": 0,
+      "n_tx": 3,
+      "n_windows": 1,
+      "window_scores": [
+        0.5183393955230713
+      ],
+      "account_score": 0.5183393955230713
+    },
+    {
+      "address": "0xe9646b0f30f85da25813dc12609e32204d955cc5",
+      "label": 0,
+      "n_tx": 5,
+      "n_windows": 1,
+      "window_scores": [
+        0.5223598480224609
+      ],
+      "account_score": 0.5223598480224609
+    }
+  ]
+}

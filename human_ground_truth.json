@@ -1,0 +1,1102 @@
+[
+    {
+        "account_address": "0x2b164ae662a0ab1832c87cb4a226efec56219fb6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 9.66 ETH)",
+        "total_txs": 28,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 26,
+                "end_tx_idx": 27
+            }
+        ]
+    },
+    {
+        "account_address": "0x5580fb6e95230bf16ae7e2c6467d11566ed5b3ea",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 0.58 ETH)",
+        "total_txs": 27,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 2,
+                "end_tx_idx": 4
+            }
+        ]
+    },
+    {
+        "account_address": "0x6eef8361bf52d8814ed646a8ec28020539982ac6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 1.29 ETH)",
+        "total_txs": 29,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 25,
+                "end_tx_idx": 27
+            }
+        ]
+    },
+    {
+        "account_address": "0x2cdf611af8cf6c6a79105dae3b4565af906ff9ca",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 4.99 ETH)",
+        "total_txs": 20,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 18,
+                "end_tx_idx": 19
+            }
+        ]
+    },
+    {
+        "account_address": "0x30f22013cb880ea03402a4d71880024837336d01",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 100.00 ETH)",
+        "total_txs": 106,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 21,
+                "end_tx_idx": 23
+            }
+        ]
+    },
+    {
+        "account_address": "0xd330465e03643112907b96a08bb4ed601d81f95f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 13.80 ETH)",
+        "total_txs": 109,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 83,
+                "end_tx_idx": 85
+            }
+        ]
+    },
+    {
+        "account_address": "0xf8d270220168620afd771e1bdb592e116cc8df19",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 108.51 ETH)",
+        "total_txs": 83,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 1,
+                "end_tx_idx": 3
+            }
+        ]
+    },
+    {
+        "account_address": "0x2ede4eb0fe6ca583b5cf9fdc5c100ecea119da7d",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 29.99 ETH)",
+        "total_txs": 58,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 34,
+                "end_tx_idx": 36
+            }
+        ]
+    },
+    {
+        "account_address": "0x84d2a64cf2c0b1b4a65925dc0b1a20f42fe6104f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 54.00 ETH)",
+        "total_txs": 99,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 50,
+                "end_tx_idx": 52
+            }
+        ]
+    },
+    {
+        "account_address": "0x28f4c90197238494d309446c277b2ca93646e88b",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 89.87 ETH)",
+        "total_txs": 111,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 50,
+                "end_tx_idx": 52
+            }
+        ]
+    },
+    {
+        "account_address": "0x8b1deff8d7d0eeb1869f9e3e52169f19cabdbb5b",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 400.00 ETH)",
+        "total_txs": 70,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 12,
+                "end_tx_idx": 14
+            }
+        ]
+    },
+    {
+        "account_address": "0x1d258a2877447ebb926f4f7245ced09b3e2f9d07",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 8.70 ETH)",
+        "total_txs": 125,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 32,
+                "end_tx_idx": 34
+            }
+        ]
+    },
+    {
+        "account_address": "0xeed381b33e8e06a56b55d535d9b4dac737091e6f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 57.40 ETH)",
+        "total_txs": 403,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 370,
+                "end_tx_idx": 372
+            }
+        ]
+    },
+    {
+        "account_address": "0xc57f1148855e67763a694f7f2c0e68230adc686e",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 50.00 ETH)",
+        "total_txs": 69,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 24,
+                "end_tx_idx": 26
+            }
+        ]
+    },
+    {
+        "account_address": "0x1e071281416b20ac2cd50d2e8093b43f8526940a",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 15.50 ETH)",
+        "total_txs": 87,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 78,
+                "end_tx_idx": 80
+            }
+        ]
+    },
+    {
+        "account_address": "0x083cdb896fef79b2034579bf8f7bf2b2e723a736",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 180.00 ETH)",
+        "total_txs": 59,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 2,
+                "end_tx_idx": 4
+            }
+        ]
+    },
+    {
+        "account_address": "0xe55996c55e188fbcf95ed6ca96fa933171c05fa0",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 0.88 ETH)",
+        "total_txs": 45,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0x3bf351a62df57dce8512b136daa4cd6ebe2dda91",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 37.18 ETH)",
+        "total_txs": 35,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 33,
+                "end_tx_idx": 34
+            }
+        ]
+    },
+    {
+        "account_address": "0x4d4f0ace8233836e0cf6ae21820bd7f76871c1ec",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 34.58 ETH)",
+        "total_txs": 21,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 15,
+                "end_tx_idx": 17
+            }
+        ]
+    },
+    {
+        "account_address": "0xebfce0f5135c0bd67f9fa5b1ae1366a566f659ff",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 10.47 ETH)",
+        "total_txs": 21,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 19,
+                "end_tx_idx": 20
+            }
+        ]
+    },
+    {
+        "account_address": "0x5093c4029acab3aff80140023099f5ec6ca7d52f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 4.48 ETH)",
+        "total_txs": 22,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 16,
+                "end_tx_idx": 18
+            }
+        ]
+    },
+    {
+        "account_address": "0x3d075995577c0c3c65a466fee47ffb1ba6a41b02",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 35.98 ETH)",
+        "total_txs": 40,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 38,
+                "end_tx_idx": 39
+            }
+        ]
+    },
+    {
+        "account_address": "0x6e2e9b98af5f742f8056f24fd514c7648fad2d17",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 114.62 ETH)",
+        "total_txs": 33,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 24,
+                "end_tx_idx": 26
+            }
+        ]
+    },
+    {
+        "account_address": "0x2f8debdcf62eb537871daede11f790d84ddf35cf",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 6.00 ETH)",
+        "total_txs": 28,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 25,
+                "end_tx_idx": 27
+            }
+        ]
+    },
+    {
+        "account_address": "0xe37a8a7e0f5d9b0662116d820914fba7b5e4c2f6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 9.99 ETH)",
+        "total_txs": 22,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 8,
+                "end_tx_idx": 10
+            }
+        ]
+    },
+    {
+        "account_address": "0xa23e1185c7edd4ead3b916a5da2f1b7bd8628685",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 1.07 ETH)",
+        "total_txs": 34,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0xaced61307d552c37555cdd8df82aec34176bd9e3",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 14.71 ETH)",
+        "total_txs": 20,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 18,
+                "end_tx_idx": 19
+            }
+        ]
+    },
+    {
+        "account_address": "0xbad41e5412ebaf22b8ec127521060fd9fa29bbdd",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 27.64 ETH)",
+        "total_txs": 40,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0x05fbf1e3f105df6a4553f3c7f2ed93070a4bab46",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 105.55 ETH)",
+        "total_txs": 108,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 30,
+                "end_tx_idx": 32
+            }
+        ]
+    },
+    {
+        "account_address": "0xceebb2d0cdc85e9774a232bab74c45fc883c15e4",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 18.19 ETH)",
+        "total_txs": 23,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 21,
+                "end_tx_idx": 22
+            }
+        ]
+    },
+    {
+        "account_address": "0xa6626a8a85f2032930a25d278ae149191e3ba247",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 27.11 ETH)",
+        "total_txs": 23,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 21,
+                "end_tx_idx": 22
+            }
+        ]
+    },
+    {
+        "account_address": "0x7083c1bb9a6d9c73cb9b3c200e992e43ff103462",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 20.92 ETH)",
+        "total_txs": 30,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 28,
+                "end_tx_idx": 29
+            }
+        ]
+    },
+    {
+        "account_address": "0xfeaa2288d98fb4886a45bb153fcc05bc7a2de8da",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 22.20 ETH)",
+        "total_txs": 248,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 106,
+                "end_tx_idx": 108
+            }
+        ]
+    },
+    {
+        "account_address": "0xc04db254be07f31c5916df143993a61822a2f2c8",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 140.38 ETH)",
+        "total_txs": 36,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 18,
+                "end_tx_idx": 20
+            }
+        ]
+    },
+    {
+        "account_address": "0xbe4f201ca79ad8961a35d0b96be2ff42445a7d8a",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 37.89 ETH)",
+        "total_txs": 35,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 33,
+                "end_tx_idx": 34
+            }
+        ]
+    },
+    {
+        "account_address": "0x20f2ce82c28b726930a9b476503df7b814335642",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 14.50 ETH)",
+        "total_txs": 35,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0x0128282ce73c72decabaeace9358344adff449fe",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 5.00 ETH)",
+        "total_txs": 154,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 109,
+                "end_tx_idx": 111
+            }
+        ]
+    },
+    {
+        "account_address": "0x33ed22f4b6b05f8a5faac4701550d52286bd735a",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 24984.67 ETH)",
+        "total_txs": 57,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 11,
+                "end_tx_idx": 13
+            }
+        ]
+    },
+    {
+        "account_address": "0x556ad0b1b25ca2198b65feddbe79c0c176bd8233",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 2.86 ETH)",
+        "total_txs": 848,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0xd63fc5280580242f79e9f98c4e64f032109178fb",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 3.50 ETH)",
+        "total_txs": 61,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 44,
+                "end_tx_idx": 46
+            }
+        ]
+    },
+    {
+        "account_address": "0x48ec7767d5def1c1520402b092356e070c5f1adc",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 27.01 ETH)",
+        "total_txs": 28,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 26,
+                "end_tx_idx": 27
+            }
+        ]
+    },
+    {
+        "account_address": "0x5f37e2788e419568ade357e483dc8cbe3a96e2a1",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 400.00 ETH)",
+        "total_txs": 135,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 119,
+                "end_tx_idx": 121
+            }
+        ]
+    },
+    {
+        "account_address": "0xf23a5c61e951b198adbc59e1a05a729c043d33d5",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 24.06 ETH)",
+        "total_txs": 37,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 34,
+                "end_tx_idx": 36
+            }
+        ]
+    },
+    {
+        "account_address": "0x8909cc8d294544ca2c956550edbcb59ce4f2a9ad",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 28.27 ETH)",
+        "total_txs": 41,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 36,
+                "end_tx_idx": 38
+            }
+        ]
+    },
+    {
+        "account_address": "0xecfcaa9830e7d4fd6ab5932846d38a2c42b33e11",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 690.00 ETH)",
+        "total_txs": 226,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 151,
+                "end_tx_idx": 153
+            }
+        ]
+    },
+    {
+        "account_address": "0x56ccaa034a0bdb7d3a9515cb580fb5448efb584c",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 22.73 ETH)",
+        "total_txs": 23,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 21,
+                "end_tx_idx": 22
+            }
+        ]
+    },
+    {
+        "account_address": "0x44bf1ca413803345b3d5ddd63f38a6384574afe3",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 2.00 ETH)",
+        "total_txs": 43,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 37,
+                "end_tx_idx": 39
+            }
+        ]
+    },
+    {
+        "account_address": "0x2e7f29ed5c73f5bad44ee7ce20afeeb67d11de23",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 62.04 ETH)",
+        "total_txs": 31,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 29,
+                "end_tx_idx": 30
+            }
+        ]
+    },
+    {
+        "account_address": "0xce0a62249ed1fc7d027cc6d62a55d72030ae0832",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 11.00 ETH)",
+        "total_txs": 26,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 11,
+                "end_tx_idx": 13
+            }
+        ]
+    },
+    {
+        "account_address": "0x1ce4312fdd45c9184a5561314122b2244bd862c9",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 30.00 ETH)",
+        "total_txs": 51,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0xd2ccc7f96b12d609159a49b819fcab3e9644d06b",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 250.00 ETH)",
+        "total_txs": 116,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 85,
+                "end_tx_idx": 87
+            }
+        ]
+    },
+    {
+        "account_address": "0x8bf812ec596bce575963accb13ce3e6586b6cb93",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 7.20 ETH)",
+        "total_txs": 44,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 5,
+                "end_tx_idx": 7
+            }
+        ]
+    },
+    {
+        "account_address": "0xba83e9ce38b10522e3d6061a12779b7526839eda",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 739.00 ETH)",
+        "total_txs": 236,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 111,
+                "end_tx_idx": 113
+            }
+        ]
+    },
+    {
+        "account_address": "0x09710c915edbce7ef5382214094b562314c5c626",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 2.74 ETH)",
+        "total_txs": 20,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 6,
+                "end_tx_idx": 8
+            }
+        ]
+    },
+    {
+        "account_address": "0x354d4f3eb48be676a030f98e2a6c5bc06b96e249",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 50.75 ETH)",
+        "total_txs": 34,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 22,
+                "end_tx_idx": 24
+            }
+        ]
+    },
+    {
+        "account_address": "0xf87d8c781979e4cfe14da4366617197bb6f1f235",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 78.36 ETH)",
+        "total_txs": 136,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0xac40176af36793c658a1da6cababf0e01c8c6508",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 5.06 ETH)",
+        "total_txs": 65,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 42,
+                "end_tx_idx": 44
+            }
+        ]
+    },
+    {
+        "account_address": "0xac2530772075b7576a7b27390e348fadf3345c29",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 45.24 ETH)",
+        "total_txs": 30,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 28,
+                "end_tx_idx": 29
+            }
+        ]
+    },
+    {
+        "account_address": "0x7908e104ae43e5e6bac2d3fdaae3ccdf07ed8b8c",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 36.40 ETH)",
+        "total_txs": 28,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 25,
+                "end_tx_idx": 27
+            }
+        ]
+    },
+    {
+        "account_address": "0x8e073326377b34d039f7b2cbb28cfccedd0b91f2",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 0.36 ETH)",
+        "total_txs": 31,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0xbca6294a6c80ee0f20173547b8d85d4948a0cb39",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 5.00 ETH)",
+        "total_txs": 45,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 30,
+                "end_tx_idx": 32
+            }
+        ]
+    },
+    {
+        "account_address": "0x8b4417a6740f5672539b32c547f578564d119278",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 11.55 ETH)",
+        "total_txs": 81,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 79,
+                "end_tx_idx": 80
+            }
+        ]
+    },
+    {
+        "account_address": "0xeade619ee57d4edf08234b9b635ac951a590edf6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 133.00 ETH)",
+        "total_txs": 58,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 54,
+                "end_tx_idx": 56
+            }
+        ]
+    },
+    {
+        "account_address": "0x40949225c4a1745a9946f6aaf763241c082cb9ac",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 101.00 ETH)",
+        "total_txs": 497,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 482,
+                "end_tx_idx": 484
+            }
+        ]
+    },
+    {
+        "account_address": "0x629b2aa7fdda8f7527d6f8ea742c1d5774e567ea",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 13.70 ETH)",
+        "total_txs": 29,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 26,
+                "end_tx_idx": 28
+            }
+        ]
+    },
+    {
+        "account_address": "0x72a66bba491f0c696c4c4e3154d07b241d371944",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 3.00 ETH)",
+        "total_txs": 62,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 2
+            }
+        ]
+    },
+    {
+        "account_address": "0xb914dc808d62fc9638d5b04a58bdc831064e7d7a",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 45.19 ETH)",
+        "total_txs": 55,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 39,
+                "end_tx_idx": 41
+            }
+        ]
+    },
+    {
+        "account_address": "0x92fbf673935c28296e33170c1f70a33d95cda6dc",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 17.00 ETH)",
+        "total_txs": 46,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 8,
+                "end_tx_idx": 10
+            }
+        ]
+    },
+    {
+        "account_address": "0xfbf6f29c126382cf15795bb209ee506a174cc709",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 683.65 ETH)",
+        "total_txs": 46,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 40,
+                "end_tx_idx": 42
+            }
+        ]
+    },
+    {
+        "account_address": "0x9e3789aac7163aa06aba6ce92fc8796534e6d0cb",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 17.97 ETH)",
+        "total_txs": 272,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 101,
+                "end_tx_idx": 103
+            }
+        ]
+    },
+    {
+        "account_address": "0x60afc5761212ed59608b0559b4ccbaad24fc74b1",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 15.07 ETH)",
+        "total_txs": 124,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 87,
+                "end_tx_idx": 89
+            }
+        ]
+    },
+    {
+        "account_address": "0xacd1d40f00f3ada36927b7a78473af6ccb7ca6cb",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 9.21 ETH)",
+        "total_txs": 161,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 59,
+                "end_tx_idx": 61
+            }
+        ]
+    },
+    {
+        "account_address": "0x38a905d71a4257c68f943b00ec4a4fde8e4305c2",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 6.93 ETH)",
+        "total_txs": 56,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 46,
+                "end_tx_idx": 48
+            }
+        ]
+    },
+    {
+        "account_address": "0xb52e021453e4a5fa426d840821a65e008926956f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 326.83 ETH)",
+        "total_txs": 56,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 54,
+                "end_tx_idx": 55
+            }
+        ]
+    },
+    {
+        "account_address": "0xe6bf49e5ba7787a3550be485f074ec07f9c86403",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 173.08 ETH)",
+        "total_txs": 21,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 19,
+                "end_tx_idx": 20
+            }
+        ]
+    },
+    {
+        "account_address": "0xef57aa4b57587600fc209f345fe0a2687bc26985",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 300.00 ETH)",
+        "total_txs": 556,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 141,
+                "end_tx_idx": 143
+            }
+        ]
+    },
+    {
+        "account_address": "0x03b70dc31abf9cf6c1cf80bfeeb322e8d3dbb4ca",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 1.91 ETH)",
+        "total_txs": 64,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 59,
+                "end_tx_idx": 61
+            }
+        ]
+    },
+    {
+        "account_address": "0x29f2a717cae856fa58736a5f268290adb986f5d6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 7.25 ETH)",
+        "total_txs": 68,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 16,
+                "end_tx_idx": 18
+            }
+        ]
+    },
+    {
+        "account_address": "0x2e462fdef8cde7db82aa3f7c627731be94f7c9c4",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 12.00 ETH)",
+        "total_txs": 33,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 26,
+                "end_tx_idx": 28
+            }
+        ]
+    },
+    {
+        "account_address": "0xe64df8677512697f448b3fe54ddae8013eaa47c1",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 2.18 ETH)",
+        "total_txs": 21,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 2
+            }
+        ]
+    },
+    {
+        "account_address": "0x337e4ecc74d82dd658982334ba88e27beeef29c6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 1.01 ETH)",
+        "total_txs": 25,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 19,
+                "end_tx_idx": 21
+            }
+        ]
+    },
+    {
+        "account_address": "0x968031c8f88cc76a9acdde4809a1368b951f122e",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 17.10 ETH)",
+        "total_txs": 31,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 9,
+                "end_tx_idx": 11
+            }
+        ]
+    },
+    {
+        "account_address": "0xc80bf9bd2ba59064be000eea92aed19eefb333a1",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 1.10 ETH)",
+        "total_txs": 43,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 27,
+                "end_tx_idx": 29
+            }
+        ]
+    },
+    {
+        "account_address": "0xdf9191889649c442836ef55de5036a7b694115b6",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 5595.00 ETH)",
+        "total_txs": 73,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 36,
+                "end_tx_idx": 38
+            }
+        ]
+    },
+    {
+        "account_address": "0xe24deefbc2abbc3e07e1a6f81e993dfb388cd80f",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 44.85 ETH)",
+        "total_txs": 38,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 36,
+                "end_tx_idx": 37
+            }
+        ]
+    },
+    {
+        "account_address": "0xc6e23e534c893f98490e5e64c2065ce2643c2bbd",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 15.91 ETH)",
+        "total_txs": 23,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 21,
+                "end_tx_idx": 22
+            }
+        ]
+    },
+    {
+        "account_address": "0x75855a2c5cd3de7c7d7d1a0fa9a9e5dbcc6eed87",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 53.00 ETH)",
+        "total_txs": 179,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 160,
+                "end_tx_idx": 162
+            }
+        ]
+    },
+    {
+        "account_address": "0x8444173280e5fdc0525494638123b014cffcc521",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 0.90 ETH)",
+        "total_txs": 65,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 45,
+                "end_tx_idx": 47
+            }
+        ]
+    },
+    {
+        "account_address": "0xb6f66c9c422883533bbd7dd23769387369aee3c5",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 2.17 ETH)",
+        "total_txs": 54,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 36,
+                "end_tx_idx": 38
+            }
+        ]
+    },
+    {
+        "account_address": "0xb66d79c6098e428ab7e7b0760c7bad9fae8f86cf",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 19.00 ETH)",
+        "total_txs": 122,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 110,
+                "end_tx_idx": 112
+            }
+        ]
+    },
+    {
+        "account_address": "0x6ae9a3937e9df8bff944ec0307e7d4748533c5f7",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 6.12 ETH)",
+        "total_txs": 220,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 145,
+                "end_tx_idx": 147
+            }
+        ]
+    },
+    {
+        "account_address": "0x8ed46b363e7abfc705188d5c4dbab88d0fa97597",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 190.00 ETH)",
+        "total_txs": 91,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 12,
+                "end_tx_idx": 14
+            }
+        ]
+    },
+    {
+        "account_address": "0xdd68910e9fc5b71d4f0f5eceb4ec57742bcc3cd5",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 8.00 ETH)",
+        "total_txs": 84,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 23,
+                "end_tx_idx": 25
+            }
+        ]
+    },
+    {
+        "account_address": "0x7df1bd58e8fd49803e43987787adfecb4a0a086c",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 13178.00 ETH)",
+        "total_txs": 479,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 477,
+                "end_tx_idx": 478
+            }
+        ]
+    },
+    {
+        "account_address": "0xfc1d377f24fafbdf9bf7ec24fd8712c1c13bda48",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 150.00 ETH)",
+        "total_txs": 51,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 27,
+                "end_tx_idx": 29
+            }
+        ]
+    },
+    {
+        "account_address": "0x1e442d0461bd7a52fadb9920f6ed5bb3cd8ff75d",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 25.44 ETH)",
+        "total_txs": 24,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 22,
+                "end_tx_idx": 23
+            }
+        ]
+    },
+    {
+        "account_address": "0xf3ae45d5a0b8efb41444101267b56e6795051fac",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 10.57 ETH)",
+        "total_txs": 23,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 17,
+                "end_tx_idx": 19
+            }
+        ]
+    },
+    {
+        "account_address": "0xdd8cadd55c92249e8866c27702871b56eb41f177",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 22.62 ETH)",
+        "total_txs": 60,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 33,
+                "end_tx_idx": 35
+            }
+        ]
+    },
+    {
+        "account_address": "0xd128cf7712ec227d55a0fdf8d3673e97a614dfdd",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 42.49 ETH)",
+        "total_txs": 121,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 0,
+                "end_tx_idx": 1
+            }
+        ]
+    },
+    {
+        "account_address": "0x0a9f58ee19a7131ed031ea66a032c05c7efe965a",
+        "source_report": "Real On-Chain Forensic (Max Outgoing Transfer of 12.50 ETH)",
+        "total_txs": 57,
+        "ground_truth_bursts": [
+            {
+                "start_tx_idx": 41,
+                "end_tx_idx": 43
+            }
+        ]
+    }
+]

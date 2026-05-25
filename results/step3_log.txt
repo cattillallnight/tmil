@@ -1,0 +1,56 @@
+﻿============================================================
+TMIL-ETH - Step 3: Orthogonality Validation (R2)
+============================================================
+
+Loading features from C:\Users\Thuy Quyen\Downloads\completeproduce\tmil_eth\results\step2_features.pkl...
+  Total records: 32,633
+  Records with BERT embeddings: 32,354
+
+Building regression dataset (n_holdout=100)...
+  Holdout accounts: 100
+  Total transactions: 1,806
+
+Fitting OLS regression for each hand-crafted feature:
+  Running 1000 permutations per feature...
+
+  Feature [1/4]: z_amount (R2_obs=0.0010)
+    R2_obs:         0.0010
+    Null mean:      0.0348
+    Null p95:       0.0461
+    Hard cap (<0.3): PASS
+    Perm test:      PASS
+
+  Feature [2/4]: density (R2_obs=0.4757)
+    R2_obs:         0.4757
+    Null mean:      0.0348
+    Null p95:       0.0452
+    Hard cap (<0.3): FAIL
+    Perm test:      FAIL
+
+  Feature [3/4]: counterparty_novelty (R2_obs=0.3579)
+    R2_obs:         0.3579
+    Null mean:      0.0348
+    Null p95:       0.0453
+    Hard cap (<0.3): FAIL
+    Perm test:      FAIL
+
+  Feature [4/4]: value_ratio (R2_obs=0.2319)
+    R2_obs:         0.2319
+    Null mean:      0.0345
+    Null p95:       0.0641
+    Hard cap (<0.3): PASS
+    Perm test:      FAIL
+
+--------------------------------------------------
+Orthogonality Validation Summary:
+  z_amount                      : R2=0.0010  [PASS]
+  density                       : R2=0.4757  [FAIL]
+  counterparty_novelty          : R2=0.3579  [FAIL]
+  value_ratio                   : R2=0.2319  [PASS]
+
+Overall: SOME features failed - check above
+
+Results saved: C:\Users\Thuy Quyen\Downloads\completeproduce\tmil_eth\results\step3_orthogonality_r2.json
+
+[OK] Step 3 complete.
+

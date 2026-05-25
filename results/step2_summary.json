@@ -1,0 +1,15 @@
+{
+  "n_total": 32633,
+  "n_phishing": 4361,
+  "n_normal": 28272,
+  "embedding_dim": 64,
+  "hand_crafted_dim": 4,
+  "feature_dim_total": 68,
+  "window_W": 200,
+  "window_S": 50,
+  "median_n_tx": 5.0,
+  "mean_n_tx": 26.42637820611038,
+  "median_n_windows": 1.0,
+  "mean_n_windows": 1.2292771121257622,
+  "max_n_windows": 1369
+}

@@ -1,0 +1,23 @@
+{
+  "formula": "L_total = L_BCE(p_acct, y_A) + lambda1*L_consistency + lambda2*L_contrast",
+  "default_lambdas": {
+    "lambda1": 0.3,
+    "lambda2": 0.2
+  },
+  "phish_mask": "y_A == 1 \u2014 L_consistency and L_contrast applied ONLY to phishing bags",
+  "L_consistency": {
+    "definition": "Variance of window scores within each phishing account",
+    "rationale": "Penalizes inconsistent alerting (model should fire reliably on burst)"
+  },
+  "L_contrast": {
+    "definition": "Hinge loss: max(0, margin - (mean_phish - mean_normal))",
+    "margin": 0.3,
+    "rationale": "Pushes phishing scores above normal scores"
+  },
+  "demo_loss_components": {
+    "l_bce": 0.6472076773643494,
+    "l_consistency": 0.035967372357845306,
+    "l_contrast": 0.27290603518486023,
+    "l_total": 0.7125791311264038
+  }
+}

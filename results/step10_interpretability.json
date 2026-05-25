@@ -1,0 +1,206 @@
+{
+  "ablation_configurations": [
+    {
+      "name": "Full TMIL-ETH",
+      "lambda1": 0.3,
+      "lambda2": 0.2,
+      "single_pool": false,
+      "single_window": false,
+      "global_norm": false,
+      "description": "Complete model with triple pooling + compound loss"
+    },
+    {
+      "name": "No L_consistency",
+      "lambda1": 0.0,
+      "lambda2": 0.2,
+      "single_pool": false,
+      "single_window": false,
+      "global_norm": false,
+      "description": "Remove L_consistency (lambda1=0)"
+    },
+    {
+      "name": "No L_contrast",
+      "lambda1": 0.3,
+      "lambda2": 0.0,
+      "single_pool": false,
+      "single_window": false,
+      "global_norm": false,
+      "description": "Remove L_contrast (lambda2=0)"
+    },
+    {
+      "name": "BCE only",
+      "lambda1": 0.0,
+      "lambda2": 0.0,
+      "single_pool": false,
+      "single_window": false,
+      "global_norm": false,
+      "description": "Binary cross-entropy only (no compound loss)"
+    },
+    {
+      "name": "Single pooling",
+      "lambda1": 0.3,
+      "lambda2": 0.2,
+      "single_pool": true,
+      "single_window": false,
+      "global_norm": false,
+      "description": "Attention-only pooling (no z_mean, z_max)"
+    },
+    {
+      "name": "No sliding window",
+      "lambda1": 0.3,
+      "lambda2": 0.2,
+      "single_pool": false,
+      "single_window": true,
+      "global_norm": false,
+      "description": "Single window (last W transactions, no full sweep)"
+    },
+    {
+      "name": "Global normalization",
+      "lambda1": 0.3,
+      "lambda2": 0.2,
+      "single_pool": false,
+      "single_window": false,
+      "global_norm": true,
+      "description": "Global z-score normalization instead of per-account"
+    }
+  ],
+  "ablation_results": [
+    {
+      "config": "Full TMIL-ETH",
+      "description": "Complete model with triple pooling + compound loss",
+      "metrics": {
+        "auc": 0.884433905521036,
+        "precision": 0.9049265341400173,
+        "recall": 0.34316617502458213,
+        "f1": 0.4976235741444867,
+        "fpr_at_95tpr": 0.5486702127659574
+      },
+      "gamma": {
+        "gamma_mean": 0.7057788764631966,
+        "gamma_median": 0.9090909090909091,
+        "gamma_std": 0.34016061861125035,
+        "n_accounts": 31
+      }
+    },
+    {
+      "config": "No L_consistency",
+      "description": "Remove L_consistency (lambda1=0)",
+      "metrics": {
+        "auc": 0.9174299322858915,
+        "precision": 0.8783422459893048,
+        "recall": 0.4306784660766962,
+        "f1": 0.5779634924125797,
+        "fpr_at_95tpr": 0.3170212765957447
+      },
+      "gamma": {
+        "gamma_mean": 0.6519139383452873,
+        "gamma_median": 0.7692307692307693,
+        "gamma_std": 0.36416648612428193,
+        "n_accounts": 31
+      }
+    },
+    {
+      "config": "No L_contrast",
+      "description": "Remove L_contrast (lambda2=0)",
+      "metrics": {
+        "auc": 0.8697472750475952,
+        "precision": 0.8763779527559055,
+        "recall": 0.3647984267453294,
+        "f1": 0.515158528118491,
+        "fpr_at_95tpr": 0.6151595744680851
+      },
+      "gamma": {
+        "gamma_mean": 0.7433511802094741,
+        "gamma_median": 0.9090909090909091,
+        "gamma_std": 0.2929465430859779,
+        "n_accounts": 31
+      }
+    },
+    {
+      "config": "BCE only",
+      "description": "Binary cross-entropy only (no compound loss)",
+      "metrics": {
+        "auc": 0.8969749192800407,
+        "precision": 0.8760330578512396,
+        "recall": 0.3474270730907899,
+        "f1": 0.4975357897207228,
+        "fpr_at_95tpr": 0.3771276595744681
+      },
+      "gamma": {
+        "gamma_mean": 0.7600444575813692,
+        "gamma_median": 0.875,
+        "gamma_std": 0.2764425068624991,
+        "n_accounts": 31
+      }
+    },
+    {
+      "config": "Single pooling",
+      "description": "Attention-only pooling (no z_mean, z_max)",
+      "metrics": {
+        "auc": 0.9369725308060838,
+        "precision": 0.8658707865168539,
+        "recall": 0.40412979351032446,
+        "f1": 0.5510614525139664,
+        "fpr_at_95tpr": 0.10930851063829787
+      },
+      "gamma": {
+        "gamma_mean": null,
+        "gamma_median": null,
+        "n_accounts": 0,
+        "note": "N/A for single pool"
+      }
+    },
+    {
+      "config": "No sliding window",
+      "description": "Single window (last W transactions, no full sweep)",
+      "metrics": {
+        "auc": 0.96935881052114,
+        "precision": 0.8757921419518377,
+        "recall": 0.7924311926605505,
+        "f1": 0.8320288982540638,
+        "fpr_at_95tpr": 0.16766981943250214
+      },
+      "gamma": {
+        "gamma_mean": 0.7261300834362631,
+        "gamma_median": 0.8,
+        "gamma_std": 0.30704606326425754,
+        "n_accounts": 31
+      }
+    },
+    {
+      "config": "Global normalization",
+      "description": "Global z-score normalization instead of per-account",
+      "metrics": {
+        "auc": 0.9190803329218883,
+        "precision": 0.8667699457784663,
+        "recall": 0.3667649950835792,
+        "f1": 0.5154306771073238,
+        "fpr_at_95tpr": 0.25372340425531914
+      },
+      "gamma": {
+        "gamma_mean": 0.750464062769154,
+        "gamma_median": 0.9090909090909091,
+        "gamma_std": 0.2832593598152832,
+        "n_accounts": 31
+      }
+    }
+  ],
+  "saliency_maps_generated": [
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x9c6625dc.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x648fbe0e.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x00000000.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0xd9d55082.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x0f23430d.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x0059b14e.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0xd9ac9d0f.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x39c8229a.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x7f0dd36f.csv",
+    "/home/HardDisk/cattillallnight/submitBERT4ETH/tmil_eth/results/step10_saliency_maps/saliency_0x414bca67.csv"
+  ],
+  "interpretability_notes": {
+    "gamma_formula": "gamma = |Top-10% attn txs \u2229 Burst proxy| / |Burst proxy|",
+    "burst_proxy": "density_i > p75 AND value_ratio_i > 1",
+    "scope_limitation": "gamma uses same features (density, value_ratio) as model inputs \u2014 may reflect feature learning rather than independent forensic discovery.",
+    "usage": "Reported as relative diagnostic only, not for model selection."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "protocol": {
+    "n_holdout_accounts": 100,
+    "n_permutations": 1000,
+    "hard_cap_r2": 0.3,
+    "acceptance_criterion": "R2_obs < 95th percentile of null AND R2_obs < 0.30",
+    "null_floor_theoretical": "~0.013 at d=64, n=5000"
+  },
+  "features": {
+    "z_amount": {
+      "r2_observed": 0.0010469755834079386,
+      "null_mean": 0.03481679059363919,
+      "null_p95": 0.046127026752357365,
+      "null_floor_approx": 0.03422732235084547,
+      "hard_cap": 0.3,
+      "passes_hard_cap": true,
+      "passes_permutation_test": true
+    },
+    "density": {
+      "r2_observed": 0.47569455851692566,
+      "null_mean": 0.034766570563855556,
+      "null_p95": 0.04522284173328688,
+      "null_floor_approx": 0.03437723002886872,
+      "hard_cap": 0.3,
+      "passes_hard_cap": false,
+      "passes_permutation_test": false
+    },
+    "counterparty_novelty": {
+      "r2_observed": 0.35793062985178115,
+      "null_mean": 0.03482112567477053,
+      "null_p95": 0.04528777744843644,
+      "null_floor_approx": 0.03438426581102466,
+      "hard_cap": 0.3,
+      "passes_hard_cap": false,
+      "passes_permutation_test": false
+    },
+    "value_ratio": {
+      "r2_observed": 0.23186009211546832,
+      "null_mean": 0.034519890091044475,
+      "null_p95": 0.06412021780171738,
+      "null_floor_approx": 0.03244622718830409,
+      "hard_cap": 0.3,
+      "passes_hard_cap": true,
+      "passes_permutation_test": false
+    }
+  },
+  "overall_pass": false
+}

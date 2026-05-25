@@ -1,0 +1,23 @@
+{
+  "dataset": "BERT4ETH public benchmark",
+  "phishing_accounts_file": 7067,
+  "phishing_accounts_paper": 7068,
+  "normal_accounts_paper": 28272,
+  "total_accounts_paper": 35340,
+  "class_ratio_paper": "1:4",
+  "normal_candidates_from_tx": 190770,
+  "pilot_study": {
+    "phisher_n": 36,
+    "normal_n": 50,
+    "phisher_bag_purity_proxy_median": 0.038157894736842106,
+    "phisher_bag_purity_proxy_min": 0.0,
+    "phisher_bag_purity_proxy_90th": 0.251984126984127,
+    "meets_target_median_gte_005": false
+  },
+  "phisher_seq_len": {
+    "median": 3.0,
+    "mean": 40.653385344106994,
+    "max": 60410,
+    "accounts_with_out_tx": 3589
+  }
+}
