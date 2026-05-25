@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, f1_score, precision_recall_curve
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
+from sklearn.metrics import roc_auc_score, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -17,7 +17,7 @@ RESULTS_DIR = Path(__file__).parent / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # -------------------------------------------------------------------------
-# 1. ABMIL Model (Adapted from Ilse et al., 2018)
+# Deep Learning Baseline Models
 # -------------------------------------------------------------------------
 class GatedAttentionABMIL(nn.Module):
     def __init__(self, input_dim=68, M=64, L=64, ATTENTION_BRANCHES=1):
@@ -26,66 +26,78 @@ class GatedAttentionABMIL(nn.Module):
         self.L = L
         self.ATTENTION_BRANCHES = ATTENTION_BRANCHES
 
-        # Replace Conv2d with Linear for our 68-dim vectors
         self.feature_extractor = nn.Sequential(
-            nn.Linear(input_dim, 128),
-            nn.ReLU(),
-            nn.Linear(128, self.M),
-            nn.ReLU()
+            nn.Linear(input_dim, 128), nn.ReLU(),
+            nn.Linear(128, self.M), nn.ReLU()
         )
-
-        self.attention_V = nn.Sequential(
-            nn.Linear(self.M, self.L),
-            nn.Tanh()
-        )
-        self.attention_U = nn.Sequential(
-            nn.Linear(self.M, self.L),
-            nn.Sigmoid()
-        )
+        self.attention_V = nn.Sequential(nn.Linear(self.M, self.L), nn.Tanh())
+        self.attention_U = nn.Sequential(nn.Linear(self.M, self.L), nn.Sigmoid())
         self.attention_w = nn.Linear(self.L, self.ATTENTION_BRANCHES)
-
-        self.classifier = nn.Sequential(
-            nn.Linear(self.M * self.ATTENTION_BRANCHES, 1),
-            nn.Sigmoid()
-        )
+        self.classifier = nn.Sequential(nn.Linear(self.M * self.ATTENTION_BRANCHES, 1), nn.Sigmoid())
 
     def forward(self, x):
-        # x: [K, 68]
         H = self.feature_extractor(x)  # [K, M]
+        A_V = self.attention_V(H)
+        A_U = self.attention_U(H)
+        A = self.attention_w(A_V * A_U)
+        A = torch.transpose(A, 1, 0)
+        A = F.softmax(A, dim=1)
+        Z = torch.mm(A, H)
+        return self.classifier(Z), A.squeeze(0)
 
-        A_V = self.attention_V(H)  # [K, L]
-        A_U = self.attention_U(H)  # [K, L]
-        A = self.attention_w(A_V * A_U)  # [K, 1]
-        A = torch.transpose(A, 1, 0)  # [1, K]
-        A = F.softmax(A, dim=1)  # softmax over K
-
-        Z = torch.mm(A, H)  # [1, M]
-        Y_prob = self.classifier(Z)
+class MeanMIL_Baseline(nn.Module):
+    def __init__(self, input_dim=68, hidden_dim=64):
+        super(MeanMIL_Baseline, self).__init__()
+        self.feature_extractor = nn.Sequential(
+            nn.Linear(input_dim, 128), nn.ReLU(),
+            nn.Linear(128, hidden_dim), nn.ReLU()
+        )
+        self.classifier = nn.Sequential(nn.Linear(hidden_dim, 1), nn.Sigmoid())
         
-        return Y_prob, A.squeeze(0)
+    def forward(self, x):
+        H = self.feature_extractor(x) # [K, M]
+        Z = torch.mean(H, dim=0, keepdim=True) # [1, M]
+        return self.classifier(Z), None
 
-# -------------------------------------------------------------------------
-# 2. Bi-LSTM Model
-# -------------------------------------------------------------------------
+class MaxMIL_Baseline(nn.Module):
+    def __init__(self, input_dim=68, hidden_dim=64):
+        super(MaxMIL_Baseline, self).__init__()
+        self.feature_extractor = nn.Sequential(
+            nn.Linear(input_dim, 128), nn.ReLU(),
+            nn.Linear(128, hidden_dim), nn.ReLU()
+        )
+        self.classifier = nn.Sequential(nn.Linear(hidden_dim, 1), nn.Sigmoid())
+        
+    def forward(self, x):
+        H = self.feature_extractor(x) # [K, M]
+        Z = torch.max(H, dim=0, keepdim=True).values # [1, M]
+        return self.classifier(Z), None
+
+class BERT4ETH_Baseline(nn.Module):
+    def __init__(self, input_dim=64):
+        super(BERT4ETH_Baseline, self).__init__()
+        self.classifier = nn.Sequential(
+            nn.Linear(input_dim, 128), nn.ReLU(),
+            nn.Linear(128, 64), nn.ReLU(),
+            nn.Linear(64, 1), nn.Sigmoid()
+        )
+    def forward(self, bert_embed):
+        return self.classifier(bert_embed)
+
 class BiLSTM_Baseline(nn.Module):
     def __init__(self, input_dim=68, hidden_dim=64):
         super(BiLSTM_Baseline, self).__init__()
         self.lstm = nn.LSTM(input_size=input_dim, hidden_size=hidden_dim, 
                             num_layers=1, batch_first=True, bidirectional=True)
         self.classifier = nn.Sequential(
-            nn.Linear(hidden_dim * 2, 64),
-            nn.ReLU(),
-            nn.Linear(64, 1),
-            nn.Sigmoid()
+            nn.Linear(hidden_dim * 2, 64), nn.ReLU(),
+            nn.Linear(64, 1), nn.Sigmoid()
         )
 
     def forward(self, x):
-        # x: [1, K, 68]
-        output, (hn, cn) = self.lstm(x)
-        # hn is [2, 1, 64] -> concat to [1, 128]
-        hidden = torch.cat((hn[-2,:,:], hn[-1,:,:]), dim=1)
-        prob = self.classifier(hidden)
-        return prob
+        output, (hn, cn) = self.lstm(x.unsqueeze(0)) # [1, K, 68]
+        hidden = torch.cat((hn[-2,:,:], hn[-1,:,:]), dim=1) # [1, 128]
+        return self.classifier(hidden), None
 
 # -------------------------------------------------------------------------
 # PyTorch Dataset
@@ -103,8 +115,8 @@ def get_bag_features(rec, W=200):
             hc_win = np.vstack([hc_win, pad])
         elif n > W:
             hc_win = hc_win[:W]
-        hc_win_mean = np.mean(hc_win, axis=0) # (4,)
-        win_feat = np.concatenate([hc_win_mean, bert]) # (68,)
+        hc_win_mean = np.mean(hc_win, axis=0)
+        win_feat = np.concatenate([hc_win_mean, bert])
         bag_features.append(win_feat)
     return np.array(bag_features, dtype=np.float32)
 
@@ -114,20 +126,21 @@ class EthBagDataset(Dataset):
         self.items = []
         for rec in records:
             bag_features = get_bag_features(rec, W)
+            bert = rec["bert_embedding"]
             y = rec["label"]
-            self.items.append((bag_features, y, rec["address"]))
+            self.items.append((bag_features, bert, y, rec["address"]))
 
     def __len__(self):
         return len(self.items)
 
     def __getitem__(self, idx):
-        x, y, addr = self.items[idx]
-        return torch.tensor(x, dtype=torch.float32), torch.tensor([y], dtype=torch.float32), addr
+        x, bert, y, addr = self.items[idx]
+        return torch.tensor(x, dtype=torch.float32), torch.tensor(bert, dtype=torch.float32), torch.tensor([y], dtype=torch.float32), addr
 
 # -------------------------------------------------------------------------
-# Utility / Metric Functions
+# Utility Functions
 # -------------------------------------------------------------------------
-def train_dl_model(model, train_loader, val_loader, epochs=20, lr=1e-3, is_lstm=False):
+def train_dl_model(model, train_loader, val_loader, epochs=15, lr=5e-4, model_type="mil"):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.BCELoss()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -136,14 +149,13 @@ def train_dl_model(model, train_loader, val_loader, epochs=20, lr=1e-3, is_lstm=
     best_auc = 0
     for epoch in range(epochs):
         model.train()
-        for x, y, _ in train_loader:
-            x, y = x.to(device), y.to(device)
+        for x, bert, y, _ in train_loader:
+            x, bert, y = x.to(device), bert.to(device), y.to(device)
             optimizer.zero_grad()
-            if is_lstm:
-                # LSTM expects batch_first: [1, K, 68]
-                prob = model(x)
+            
+            if model_type == "bert":
+                prob = model(bert)
             else:
-                # ABMIL expects [K, 68]
                 prob, _ = model(x.squeeze(0))
             
             loss = criterion(prob, y)
@@ -154,10 +166,10 @@ def train_dl_model(model, train_loader, val_loader, epochs=20, lr=1e-3, is_lstm=
         model.eval()
         all_probs, all_y = [], []
         with torch.no_grad():
-            for x, y, _ in val_loader:
-                x = x.to(device)
-                if is_lstm:
-                    prob = model(x)
+            for x, bert, y, _ in val_loader:
+                x, bert = x.to(device), bert.to(device)
+                if model_type == "bert":
+                    prob = model(bert)
                 else:
                     prob, _ = model(x.squeeze(0))
                 all_probs.append(prob.item())
@@ -166,37 +178,33 @@ def train_dl_model(model, train_loader, val_loader, epochs=20, lr=1e-3, is_lstm=
         auc = roc_auc_score(all_y, all_probs)
         if auc > best_auc:
             best_auc = auc
-            torch.save(model.state_dict(), RESULTS_DIR / "temp_best_model.pt")
+            torch.save(model.state_dict(), RESULTS_DIR / f"temp_{model_type}_best.pt")
             
-    model.load_state_dict(torch.load(RESULTS_DIR / "temp_best_model.pt", weights_only=True))
+    model.load_state_dict(torch.load(RESULTS_DIR / f"temp_{model_type}_best.pt", weights_only=True))
     return model
 
-def eval_dl_model(model, loader, is_lstm=False):
+def eval_dl_model(model, loader, model_type="mil"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     model.to(device)
     all_probs, all_y = [], []
     with torch.no_grad():
-        for x, y, _ in loader:
-            x = x.to(device)
-            if is_lstm:
-                prob = model(x)
+        for x, bert, y, _ in loader:
+            x, bert = x.to(device), bert.to(device)
+            if model_type == "bert":
+                prob = model(bert)
             else:
                 prob, _ = model(x.squeeze(0))
             all_probs.append(prob.item())
             all_y.append(y.item())
             
-    all_probs = np.array(all_probs)
-    all_y = np.array(all_y)
-    
     auc = roc_auc_score(all_y, all_probs)
-    precision, recall, thresholds = precision_recall_curve(all_y, all_probs)
+    precision, recall, _ = precision_recall_curve(all_y, all_probs)
     f1_scores = 2 * recall * precision / (recall + precision + 1e-8)
-    best_f1 = np.max(f1_scores)
-    
-    return auc, best_f1
+    return auc, np.max(f1_scores)
 
-def eval_abmil_localization(model, test_recs, gt_data):
+def eval_localization(model, test_recs, gt_data):
+    # Only applies to ABMIL which returns attention scores
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     model.to(device)
@@ -219,14 +227,16 @@ def eval_abmil_localization(model, test_recs, gt_data):
             bag_features = get_bag_features(r, W=200)
             x = torch.tensor(bag_features, dtype=torch.float32).to(device)
             _, A = model(x)
-            A = A.cpu().numpy()
             
+            if A is None:
+                return "N/A"
+                
+            A = A.cpu().numpy()
             max_idx = np.argmax(A)
             
             win_start = max_idx * 50
             win_end = win_start + 200
             
-            # Hit@1 Logic
             if win_start <= gt_start and win_end >= gt_end:
                 hit += 1
             elif win_start <= gt_end and win_end >= gt_start:
@@ -237,11 +247,10 @@ def eval_abmil_localization(model, test_recs, gt_data):
     return (hit / eval_count) * 100 if eval_count > 0 else 0
 
 def main():
-    print("=" * 60)
-    print("TMIL-ETH: Baseline Comparison (RF, Bi-LSTM, ABMIL)")
-    print("=" * 60)
+    print("=" * 70)
+    print("TMIL-ETH: Comprehensive Baseline Comparison (7 Models)")
+    print("=" * 70)
     
-    # Load features
     feat_path = RESULTS_DIR / "step2_features.pkl"
     if not feat_path.exists():
         print("Features not found. Please run step2_feature_extraction.py first.")
@@ -251,7 +260,6 @@ def main():
     with open(feat_path, "rb") as f:
         records = pickle.load(f)
         
-    # Load Ground Truth
     gt_path = Path(__file__).parent / "human_ground_truth.json"
     if gt_path.exists():
         with open(gt_path) as f:
@@ -261,97 +269,107 @@ def main():
         
     eval_addrs = {item["account_address"].lower() for item in gt_data}
     
-    # ---------------------------------------------------------
     # Split Data
-    # ---------------------------------------------------------
     test_recs = [r for r in records if r["address"].lower() in eval_addrs]
     train_pool = [r for r in records if r["address"].lower() not in eval_addrs]
     
     phish_pool = [r for r in train_pool if r["label"] == 1]
     norm_pool = [r for r in train_pool if r["label"] == 0]
     
-    # Subsample normal to 1:4 ratio for training (Full Scale Dataset)
     np.random.seed(42)
-    
     norm_sample = np.random.choice(norm_pool, size=len(phish_pool)*4, replace=False).tolist()
     train_val_recs = phish_pool + norm_sample
     
     train_recs, val_recs = train_test_split(train_val_recs, test_size=0.2, random_state=42, stratify=[r["label"] for r in train_val_recs])
     
-    print(f"Train: {len(train_recs)}, Val: {len(val_recs)}, Test (Forensic): {len(test_recs)}")
+    print(f"Train: {len(train_recs)}, Val: {len(val_recs)}, Test (Forensic): {len(test_recs)}\n")
+    
+    results = {}
     
     # ---------------------------------------------------------
-    # 1. Random Forest (Mean Pooling)
+    # A. Traditional ML Baselines
     # ---------------------------------------------------------
-    print("\n--- Training Random Forest (Mean Pooling) ---")
-    def get_rf_features(recs):
+    def get_ml_features(recs):
         X, Y = [], []
         dataset = EthBagDataset(recs)
-        for x, y, _ in dataset:
+        for x, bert, y, _ in dataset:
             mean_feat = torch.mean(x, dim=0).numpy()
             X.append(mean_feat)
             Y.append(y.item())
         return np.array(X), np.array(Y)
         
-    X_train_rf, Y_train_rf = get_rf_features(train_recs)
-    X_val_rf, Y_val_rf = get_rf_features(val_recs)
+    print("--- [1/7] Training Random Forest ---")
+    X_train, Y_train = get_ml_features(train_recs)
+    X_val, Y_val = get_ml_features(val_recs)
     
     rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-    rf.fit(X_train_rf, Y_train_rf)
-    rf_probs = rf.predict_proba(X_val_rf)[:, 1]
+    rf.fit(X_train, Y_train)
+    rf_probs = rf.predict_proba(X_val)[:, 1]
+    rf_auc = roc_auc_score(Y_val, rf_probs)
+    rf_f1 = np.max(2 * precision_recall_curve(Y_val, rf_probs)[1] * precision_recall_curve(Y_val, rf_probs)[0] / (precision_recall_curve(Y_val, rf_probs)[1] + precision_recall_curve(Y_val, rf_probs)[0] + 1e-8))
+    results["Random Forest"] = {"AUC": rf_auc, "F1": rf_f1, "Hit@1": "N/A"}
     
-    rf_auc = roc_auc_score(Y_val_rf, rf_probs)
-    precision, recall, _ = precision_recall_curve(Y_val_rf, rf_probs)
-    rf_f1 = np.max(2 * recall * precision / (recall + precision + 1e-8))
-    
-    print(f"Random Forest -> AUC: {rf_auc:.4f}, F1: {rf_f1:.4f}, Hit@1: N/A")
+    print("--- [2/7] Training Gradient Boosting (HistGBM) ---")
+    gbm = HistGradientBoostingClassifier(random_state=42)
+    gbm.fit(X_train, Y_train)
+    gbm_probs = gbm.predict_proba(X_val)[:, 1]
+    gbm_auc = roc_auc_score(Y_val, gbm_probs)
+    gbm_f1 = np.max(2 * precision_recall_curve(Y_val, gbm_probs)[1] * precision_recall_curve(Y_val, gbm_probs)[0] / (precision_recall_curve(Y_val, gbm_probs)[1] + precision_recall_curve(Y_val, gbm_probs)[0] + 1e-8))
+    results["Gradient Boosting"] = {"AUC": gbm_auc, "F1": gbm_f1, "Hit@1": "N/A"}
     
     # ---------------------------------------------------------
-    # PyTorch DataLoaders
+    # PyTorch DataLoader
     # ---------------------------------------------------------
     train_loader = DataLoader(EthBagDataset(train_recs), batch_size=1, shuffle=True)
     val_loader = DataLoader(EthBagDataset(val_recs), batch_size=1, shuffle=False)
     
     # ---------------------------------------------------------
-    # 2. Bi-LSTM
+    # B. Sequence / Transformer Baselines
     # ---------------------------------------------------------
-    print("\n--- Training Bi-LSTM ---")
-    lstm_model = BiLSTM_Baseline(input_dim=68, hidden_dim=64)
-    lstm_model = train_dl_model(lstm_model, train_loader, val_loader, epochs=15, lr=5e-4, is_lstm=True)
-    lstm_auc, lstm_f1 = eval_dl_model(lstm_model, val_loader, is_lstm=True)
-    print(f"Bi-LSTM -> AUC: {lstm_auc:.4f}, F1: {lstm_f1:.4f}, Hit@1: N/A")
+    print("--- [3/7] Training Bi-LSTM ---")
+    lstm_model = train_dl_model(BiLSTM_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
+    lstm_auc, lstm_f1 = eval_dl_model(lstm_model, val_loader, model_type="mil")
+    results["Bi-LSTM"] = {"AUC": lstm_auc, "F1": lstm_f1, "Hit@1": "N/A"}
+
+    print("--- [4/7] Training BERT4ETH Base ---")
+    bert_model = train_dl_model(BERT4ETH_Baseline(), train_loader, val_loader, epochs=15, model_type="bert")
+    bert_auc, bert_f1 = eval_dl_model(bert_model, val_loader, model_type="bert")
+    results["BERT4ETH Base"] = {"AUC": bert_auc, "F1": bert_f1, "Hit@1": "N/A"}
+
+    # ---------------------------------------------------------
+    # C. MIL Baselines
+    # ---------------------------------------------------------
+    print("--- [5/7] Training Mean-Pooling MIL ---")
+    mean_model = train_dl_model(MeanMIL_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
+    mean_auc, mean_f1 = eval_dl_model(mean_model, val_loader, model_type="mil")
+    results["Mean-MIL"] = {"AUC": mean_auc, "F1": mean_f1, "Hit@1": "N/A"}
+
+    print("--- [6/7] Training Max-Pooling MIL ---")
+    max_model = train_dl_model(MaxMIL_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
+    max_auc, max_f1 = eval_dl_model(max_model, val_loader, model_type="mil")
+    results["Max-MIL"] = {"AUC": max_auc, "F1": max_f1, "Hit@1": "N/A"}
+    
+    print("--- [7/7] Training ABMIL (Ilse et al. 2018) ---")
+    abmil_model = train_dl_model(GatedAttentionABMIL(), train_loader, val_loader, epochs=15, model_type="mil")
+    abmil_auc, abmil_f1 = eval_dl_model(abmil_model, val_loader, model_type="mil")
+    abmil_hit1 = eval_localization(abmil_model, test_recs, gt_data)
+    results["ABMIL (Ilse 2018)"] = {"AUC": abmil_auc, "F1": abmil_f1, "Hit@1": abmil_hit1}
     
     # ---------------------------------------------------------
-    # 3. ABMIL (Ilse et al., 2018)
+    # Output Summary
     # ---------------------------------------------------------
-    print("\n--- Training ABMIL (Ilse et al. 2018) ---")
-    abmil_model = GatedAttentionABMIL(input_dim=68)
-    abmil_model = train_dl_model(abmil_model, train_loader, val_loader, epochs=15, lr=5e-4, is_lstm=False)
-    abmil_auc, abmil_f1 = eval_dl_model(abmil_model, val_loader, is_lstm=False)
-    
-    abmil_hit1 = eval_abmil_localization(abmil_model, test_recs, gt_data)
-    print(f"ABMIL -> AUC: {abmil_auc:.4f}, F1: {abmil_f1:.4f}, Hit@1: {abmil_hit1:.2f}%")
-    
-    # ---------------------------------------------------------
-    # Summary
-    # ---------------------------------------------------------
-    results = {
-        "Random_Forest": {"AUC": rf_auc, "F1": rf_f1, "Hit_at_1": "N/A"},
-        "Bi_LSTM": {"AUC": lstm_auc, "F1": lstm_f1, "Hit_at_1": "N/A"},
-        "ABMIL": {"AUC": abmil_auc, "F1": abmil_f1, "Hit_at_1": abmil_hit1}
-    }
-    
-    with open(RESULTS_DIR / "step13_baselines.json", "w") as f:
+    with open(RESULTS_DIR / "step13_baselines_7models.json", "w") as f:
         json.dump(results, f, indent=2)
         
-    print("\n--- Baseline Results Summary ---")
-    print(f"{'Model':<20} | {'AUC':<10} | {'F1':<10} | {'Hit@1 (%)':<10}")
-    print("-" * 55)
-    print(f"{'Random Forest':<20} | {rf_auc:<10.4f} | {rf_f1:<10.4f} | {'N/A':<10}")
-    print(f"{'Bi-LSTM':<20} | {lstm_auc:<10.4f} | {lstm_f1:<10.4f} | {'N/A':<10}")
-    print(f"{'ABMIL (Ilse 2018)':<20} | {abmil_auc:<10.4f} | {abmil_f1:<10.4f} | {abmil_hit1:<10.2f}")
-    
-    print("\n[OK] Baseline comparison completed successfully.")
+    print("\n" + "="*70)
+    print(f"{'Model':<22} | {'AUC':<10} | {'F1':<10} | {'Hit@1 (%)':<10}")
+    print("-" * 65)
+    for model_name, metrics in results.items():
+        hit = metrics["Hit@1"]
+        hit_str = f"{hit:.2f}" if isinstance(hit, (int, float)) else hit
+        print(f"{model_name:<22} | {metrics['AUC']:<10.4f} | {metrics['F1']:<10.4f} | {hit_str:<10}")
+    print("="*70)
+    print("[OK] Comprehensive 7-Baseline comparison ready!")
 
 if __name__ == "__main__":
     main()
