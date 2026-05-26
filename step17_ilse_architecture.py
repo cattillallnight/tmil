@@ -126,10 +126,23 @@ def main():
         all_aucs.append(best_auc)
         all_f1s.append(best_f1)
         
-        # Only dry-run 1 fold for verification
-        break
-        
-    print(f"\nDry Run Complete. AUC={best_auc:.4f}, F1={best_f1:.4f}")
+    print("\n" + "=" * 70)
+    print(f"ILSE ARCHITECTURE Nested CV Results:")
+    print(f"  AUC: {np.mean(all_aucs):.4f} +/- {np.std(all_aucs):.4f}")
+    print(f"  F1:  {np.mean(all_f1s):.4f} +/- {np.std(all_f1s):.4f}")
+    
+    out = {
+        "auc_mean": float(np.mean(all_aucs)),
+        "auc_std": float(np.std(all_aucs)),
+        "f1_mean": float(np.mean(all_f1s)),
+        "f1_std": float(np.std(all_f1s)),
+        "per_fold_auc": [float(a) for a in all_aucs],
+        "per_fold_f1": [float(f) for f in all_f1s],
+        "notes": "Gated Attention, No Triple Pooling, Transaction-level MIL, Bag-size Stratification"
+    }
+    with open(RESULTS_DIR / "step17_ilse_cv.json", "w") as f:
+        json.dump(out, f, indent=2)
+    print("Saved step17_ilse_cv.json")
 
 if __name__ == "__main__":
     main()
