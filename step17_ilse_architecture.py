@@ -8,80 +8,19 @@ import torch.optim as optim
 from pathlib import Path
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 
 from utils import RESULTS_DIR
 from gated_tmil import GatedTMILETH, GatedCompoundLoss
-
-class AccountBagDataset(Dataset):
-    """
-    Dataset that yields an entire account as a bag of windows.
-    Precomputes the 68-dim window features (4 hand-crafted mean + 64 BERT).
-    """
-    def __init__(self, records):
-        self.items = []
-        for rec in records:
-            hc = rec["hand_crafted"]
-            bert = rec["bert_embedding"]
-            wins = rec["windows"]
-            
-            bag_features = []
-            for (start, end) in wins:
-                hc_win = hc[start:end]
-                # Pad to at least 1 tx if empty (shouldn't happen, but safe)
-                if hc_win.shape[0] == 0:
-                    hc_win_mean = np.zeros(4, dtype=np.float32)
-                else:
-                    hc_win_mean = np.mean(hc_win, axis=0)
-                
-                win_feat = np.concatenate([hc_win_mean, bert]).astype(np.float32)
-                bag_features.append(win_feat)
-                
-            self.items.append({
-                "address": rec["address"],
-                "bag_features": np.array(bag_features), # (K, 68)
-                "label": rec["label"]
-            })
-
-    def __len__(self):
-        return len(self.items)
-
-    def __getitem__(self, idx):
-        item = self.items[idx]
-        return torch.tensor(item["bag_features"]), torch.tensor(item["label"], dtype=torch.long)
-
-def collate_bag_fn(batch):
-    """
-    Pads bags of varying lengths K to max_K in the batch.
-    Returns:
-        x_pad: (B, max_K, 68)
-        mask: (B, max_K) boolean, True for real, False for pad
-        labels: (B,)
-    """
-    labels = torch.stack([b[1] for b in batch])
-    feats = [b[0] for b in batch]
-    
-    max_k = max(f.shape[0] for f in feats)
-    B = len(feats)
-    D = feats[0].shape[1]
-    
-    x_pad = torch.zeros((B, max_k, D), dtype=torch.float32)
-    mask = torch.zeros((B, max_k), dtype=torch.bool)
-    
-    for i, f in enumerate(feats):
-        k = f.shape[0]
-        x_pad[i, :k, :] = f
-        mask[i, :k] = True
-        
-    return x_pad, mask, labels
+from step7_two_phase_training import AccountWindowDataset, collate_fn
 
 def train_one_epoch(model, loader, loss_fn, optimizer, device):
     model.train()
     total_loss = 0.0
-    for x_pad, mask, labels in loader:
-        x_pad, mask, labels = x_pad.to(device), mask.to(device), labels.to(device)
+    for hc, bert, labels in loader:
+        hc, bert, labels = hc.to(device), bert.to(device), labels.to(device)
         optimizer.zero_grad()
-        p, _ = model(x_pad, mask)
+        p, _ = model(hc, bert)
         l, _ = loss_fn(p, labels)
         l.backward()
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -93,12 +32,13 @@ def eval_model(model, loader, device):
     model.eval()
     probs, ys = [], []
     with torch.no_grad():
-        for x_pad, mask, labels in loader:
-            x_pad, mask = x_pad.to(device), mask.to(device)
-            p, _ = model(x_pad, mask)
+        for hc_val, bert_val, labels_val in loader:
+            hc_val = hc_val.to(device)
+            bert_val = bert_val.to(device)
+            p, _ = model(hc_val, bert_val)
             probs.extend(p.cpu().numpy().tolist())
-            ys.extend(labels.numpy().tolist())
-    
+            ys.extend(labels_val.cpu().numpy().tolist())
+            
     auc = roc_auc_score(ys, probs)
     binary = (np.array(probs) >= 0.5).astype(int)
     f1 = f1_score(ys, binary, zero_division=0)
@@ -114,6 +54,7 @@ def main():
     print("=" * 70)
     print("TMIL-ETH: Ilse et al. Architecture (Step 17)")
     print("Gated Attention, No Triple Pooling, Bag-Size Stratified CV")
+    print("Granularity: Transaction-Level (Window Bags)")
     print("=" * 70)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -144,11 +85,12 @@ def main():
         train_recs = [records[i] for i in train_idx]
         val_recs = [records[i] for i in val_idx]
         
-        train_ds = AccountBagDataset(train_recs)
-        val_ds = AccountBagDataset(val_recs)
+        train_ds = AccountWindowDataset(train_recs, W=200)
+        val_ds = AccountWindowDataset(val_recs, W=200)
         
-        train_loader = DataLoader(train_ds, batch_size=64, shuffle=True, collate_fn=collate_bag_fn, num_workers=0)
-        val_loader = DataLoader(val_ds, batch_size=64, shuffle=False, collate_fn=collate_bag_fn, num_workers=0)
+        # Don't use pin_memory=True to avoid memory overlap bug with expand()
+        train_loader = DataLoader(train_ds, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=0)
+        val_loader = DataLoader(val_ds, batch_size=64, shuffle=False, collate_fn=collate_fn, num_workers=0)
         
         model = GatedTMILETH(proj_dim=64, attn_hidden=128, mlp_hidden=256).to(device)
         loss_fn = GatedCompoundLoss(lambda1=0.5)
@@ -173,7 +115,7 @@ def main():
             train_one_epoch(model, train_loader, loss_fn, opt2, device)
             sched.step()
             
-            if (ep+1) % 10 == 0:
+            if (ep+1) % 10 == 0 or ep == 39:
                 auc, f1 = eval_model(model, val_loader, device)
                 if auc > best_auc:
                     best_auc = auc

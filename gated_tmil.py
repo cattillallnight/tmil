@@ -84,17 +84,19 @@ class GatedTMILETH(nn.Module):
             nn.Linear(mlp_hidden // 2, 1)
         )
 
-    def forward(self, x: torch.Tensor, mask: torch.Tensor = None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, hand_crafted: torch.Tensor, bert_embed: torch.Tensor, mask: torch.Tensor = None) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        x: (B, K, 68) where K is number of windows in the account bag.
-        mask: (B, K) boolean tensor
+        hand_crafted: (B, N, 4)
+        bert_embed: (B, N, 64)
+        mask: (B, N)
         """
+        x = torch.cat([hand_crafted, bert_embed], dim=-1)
         h = self.feature_proj(x)
         z, attn = self.attention(h, mask)
         
         logit = self.classifier(z).squeeze(-1)
-        p_acct = torch.sigmoid(logit)
-        return p_acct, attn
+        p_window = torch.sigmoid(logit)
+        return p_window, attn
 
     def freeze_bert(self):
         for param in self.feature_proj.parameters():
