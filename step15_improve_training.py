@@ -101,7 +101,7 @@ def main():
         loss_fn = CompoundLoss(lambda1=0.3, lambda2=0.2)
 
         ds_train = AccountWindowDataset(train_recs, W=200)
-        loader = DataLoader(ds_train, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=4, pin_memory=True)
+        loader = DataLoader(ds_train, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=4)
 
         # Phase 1: frozen BERT, 20 epochs
         model.freeze_bert()
@@ -129,12 +129,12 @@ def main():
                 val_loader = DataLoader(val_ds, batch_size=64, shuffle=False, collate_fn=collate_fn)
                 probs, ys = [], []
                 with torch.no_grad():
-                    for xb, yb in val_loader:
-                        xb = [x.to(device) for x in xb]
-                        for i, x in enumerate(xb):
-                            p, _ = model(x)
-                            probs.append(p.item())
-                            ys.append(yb[i].item())
+                    for hc_val, bert_val, labels_val in val_loader:
+                        hc_val = hc_val.to(device)
+                        bert_val = bert_val.to(device)
+                        p, _ = model(hc_val, bert_val)
+                        probs.extend(p.cpu().numpy().tolist())
+                        ys.extend(labels_val.cpu().numpy().tolist())
                 auc = roc_auc_score(ys, probs)
                 if auc > best_auc:
                     best_auc = auc
@@ -149,12 +149,12 @@ def main():
         val_loader = DataLoader(val_ds, batch_size=64, shuffle=False, collate_fn=collate_fn)
         probs, ys = [], []
         with torch.no_grad():
-            for xb, yb in val_loader:
-                xb = [x.to(device) for x in xb]
-                for i, x in enumerate(xb):
-                    p, _ = model(x)
-                    probs.append(p.item())
-                    ys.append(yb[i].item())
+            for hc_val, bert_val, labels_val in val_loader:
+                hc_val = hc_val.to(device)
+                bert_val = bert_val.to(device)
+                p, _ = model(hc_val, bert_val)
+                probs.extend(p.cpu().numpy().tolist())
+                ys.extend(labels_val.cpu().numpy().tolist())
         auc = roc_auc_score(ys, probs)
         precision, recall, _ = precision_recall_curve(ys, probs)
         f1 = np.max(2 * precision * recall / (precision + recall + 1e-8))
