@@ -92,12 +92,8 @@ def evaluate_localization(model, test_recs, gt_dict, device):
     hit1 = 0
     total = 0
     
-    # Use AccountWindowDataset to properly format the data
-    test_ds = AccountWindowDataset(test_recs, W=200)
-    # We evaluate one by one to keep track of the address
-    
     with torch.no_grad():
-        for i, r in enumerate(test_recs):
+        for r in test_recs:
             addr = r["address"].lower()
             if addr not in gt_dict: continue
             
@@ -107,23 +103,33 @@ def evaluate_localization(model, test_recs, gt_dict, device):
             if len(wins) == 0 or len(gt_set) == 0: continue
             
             total += 1
+            hc = r["hand_crafted"]
+            bert = r["bert_embedding"]
             
-            # Fetch formatted tensors from dataset
-            hc_tensor, bert_tensor, _ = test_ds[i]
+            best_p = -1
+            best_win = None
             
-            # Add batch dimension and broadcast bert
-            hc = hc_tensor.unsqueeze(0).to(device)       # (1, W, 4)
-            bert = bert_tensor.unsqueeze(0).unsqueeze(0).expand(1, hc.shape[1], -1).to(device) # (1, W, 64)
-            
-            _, attn = model(hc, bert)
-            attn = attn.squeeze(0).cpu().numpy()
-            
-            max_idx = np.argmax(attn)
-            pred_start, pred_end = wins[max_idx]
-            pred_set = set(range(pred_start, pred_end))
-            
-            if calculate_iou(pred_set, gt_set) > 0:
-                hit1 += 1
+            for win_idx, (start, end) in enumerate(wins):
+                hc_win = hc[start:end]
+                n = hc_win.shape[0]
+                if n < 200:
+                    pad = np.zeros((200 - n, 4), dtype=np.float32)
+                    hc_win_pad = np.vstack([hc_win, pad])
+                else:
+                    hc_win_pad = hc_win[:200]
+                    
+                hc_t = torch.tensor(hc_win_pad, dtype=torch.float32).unsqueeze(0).to(device)
+                bert_t = torch.tensor(bert, dtype=torch.float32).unsqueeze(0).unsqueeze(0).expand(-1, 200, -1).to(device)
+                
+                p, _ = model(hc_t, bert_t)
+                if p.item() > best_p:
+                    best_p = p.item()
+                    best_win = (start, end)
+                    
+            if best_win is not None:
+                pred_set = set(range(best_win[0], best_win[1]))
+                if calculate_iou(pred_set, gt_set) > 0:
+                    hit1 += 1
                 
     return (hit1 / total) * 100 if total > 0 else 0
 
