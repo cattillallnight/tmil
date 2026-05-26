@@ -91,6 +91,8 @@ def main():
     print("\n[3] Bắt đầu chấm điểm (Evaluation) dựa trên Human Ground Truth...")
     
     hit_at_1_count = 0
+    hit_at_3_count = 0
+    hit_at_5_count = 0
     ious = []
     results_list = []
     
@@ -142,14 +144,19 @@ def main():
         if best_attn_scores is None:
             continue
             
-        max_attn_idx_in_win = int(np.argmax(best_attn_scores))
-        max_attn_global_idx = best_start + max_attn_idx_in_win
+        # Top-k metrics
+        top_k_indices = np.argsort(best_attn_scores)[::-1]
         
-        hit = 1 if max_attn_global_idx in gt_set else 0
-        hit_at_1_count += hit
+        hit_1 = 1 if (best_start + top_k_indices[0]) in gt_set else 0
+        hit_3 = 1 if any((best_start + i) in gt_set for i in top_k_indices[:3]) else 0
+        hit_5 = 1 if any((best_start + i) in gt_set for i in top_k_indices[:5]) else 0
+        
+        hit_at_1_count += hit_1
+        hit_at_3_count += hit_3
+        hit_at_5_count += hit_5
         
         # Lấy Top-3 Attention để tính IoU
-        top3_local = np.argsort(best_attn_scores)[-3:]
+        top3_local = top_k_indices[:3]
         pred_set = set([best_start + i for i in top3_local])
         
         iou = calculate_iou(pred_set, gt_set)
@@ -158,8 +165,10 @@ def main():
         results_list.append({
             "account": addr,
             "human_gt_burst": f"{gt_start}-{gt_end}",
-            "ai_max_attn_idx": max_attn_global_idx,
-            "hit_at_1": hit,
+            "ai_max_attn_idx": best_start + top_k_indices[0],
+            "hit_at_1": hit_1,
+            "hit_at_3": hit_3,
+            "hit_at_5": hit_5,
             "iou": round(iou, 3)
         })
 
@@ -167,14 +176,18 @@ def main():
         print("Không có kết quả nào để đánh giá.")
         return
         
-    hit_rate = (hit_at_1_count / len(results_list)) * 100
+    hit_1_rate = (hit_at_1_count / len(results_list)) * 100
+    hit_3_rate = (hit_at_3_count / len(results_list)) * 100
+    hit_5_rate = (hit_at_5_count / len(results_list)) * 100
     mean_iou = np.mean(ious) * 100
     
     print("\n=======================================================")
     print("      FORENSIC LOCALIZATION EVALUATION (HUMAN GT)      ")
     print("=======================================================")
     print(f"Tổng số ví được con người dán nhãn : {len(results_list)}")
-    print(f"Pointing Game (Hit@1)              : {hit_rate:.2f}%")
+    print(f"Pointing Game (Hit@1)              : {hit_1_rate:.2f}%")
+    print(f"Pointing Game (Hit@3)              : {hit_3_rate:.2f}%")
+    print(f"Pointing Game (Hit@5)              : {hit_5_rate:.2f}%")
     print(f"Temporal Overlap (Mean IoU)        : {mean_iou:.2f}%")
     print("=======================================================")
     print("\n* Bằng chứng khoa học: Mô hình chưa bao giờ nhìn thấy các ví này")
