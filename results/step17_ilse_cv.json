@@ -1,0 +1,21 @@
+{
+  "auc_mean": 0.9536,
+  "auc_std": 0.0254,
+  "f1_mean": 0.7521,
+  "f1_std": 0.1061,
+  "per_fold_auc": [
+    0.9702,
+    0.9679,
+    0.9034,
+    0.9587,
+    0.9680
+  ],
+  "per_fold_f1": [
+    0.8167,
+    0.7724,
+    0.5502,
+    0.7655,
+    0.8559
+  ],
+  "notes": "Gated Attention, No Triple Pooling, Transaction-level MIL, Bag-size Stratification"
+}
