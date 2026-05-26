@@ -96,35 +96,14 @@ def get_bag_features(rec, W=200):
     return np.array(bag_features, dtype=np.float32)
 
 
-class TMILETH_Eval(nn.Module):
-    """Minimal TMIL-ETH for evaluation only — loads saved checkpoint."""
-    def __init__(self, input_dim=68, hidden_dim=64):
-        super().__init__()
-        self.feature_proj = nn.Sequential(
-            nn.Linear(input_dim, 128), nn.ReLU(),
-            nn.Linear(128, hidden_dim), nn.ReLU()
-        )
-        self.att_V = nn.Sequential(nn.Linear(hidden_dim, 64), nn.Tanh())
-        self.att_U = nn.Sequential(nn.Linear(hidden_dim, 64), nn.Sigmoid())
-        self.att_w = nn.Linear(64, 1)
-        self.classifier = nn.Sequential(nn.Linear(hidden_dim * 3, 64), nn.ReLU(), nn.Linear(64, 1), nn.Sigmoid())
-
-    def forward(self, x):
-        H = self.feature_proj(x)
-        A = self.att_w(self.att_V(H) * self.att_U(H))  # [K, 1]
-        A = F.softmax(A, dim=0).squeeze(-1)  # [K]
-        z_attn = (A.unsqueeze(-1) * H).sum(0)
-        z_mean = H.mean(0)
-        z_max = H.max(0).values
-        Z = torch.cat([z_attn, z_mean, z_max])
-        return self.classifier(Z.unsqueeze(0)), A
-
+from tmil_model import TMILETH
 
 def compute_hit_at_k(records, gt_data, model_path, device, k_values=[1, 3, 5]):
     print(f"\n[2] Hit@k evaluation (k={k_values})")
     
     gt_map = {item["account_address"].lower(): item for item in gt_data}
-    model = TMILETH_Eval(input_dim=68, hidden_dim=64).to(device)
+    model = TMILETH(4, 64).to(device)
+
     
     if not Path(model_path).exists():
         print(f"  Model checkpoint not found: {model_path}")

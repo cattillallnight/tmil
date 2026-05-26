@@ -51,7 +51,8 @@ def main():
         wins = rec["windows"]
         hc = rec["hand_crafted"] # (seq_len, 4)
         
-        gt_set = set(gt["ground_truth_indices"])
+        burst = gt["ground_truth_bursts"][0]
+        gt_set = set(range(burst["start_tx_idx"], burst["end_tx_idx"] + 1))
         if len(gt_set) == 0 or len(wins) == 0:
             continue
             

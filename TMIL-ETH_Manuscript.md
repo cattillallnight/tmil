@@ -49,6 +49,28 @@ MIL is a weakly supervised learning paradigm where training instances are groupe
 
 # 3. Methodology
 
+## Architecture Overview
+
+```mermaid
+graph TD
+    A[Raw Ethereum Transaction Sequence] --> B(Sliding Window Algorithm)
+    B -->|W=200, S=50| C[Bag of Windows]
+    C --> D1[BERT Embeddings 64-dim]
+    C --> D2[Heuristics 4-dim]
+    
+    subgraph TMIL-ETH Architecture
+        D1 --> E[Concat Feature Vector 68-dim]
+        D2 --> E
+        E -->|MLP| F[Instance Representations]
+        F --> G[Gated Attention Mechanism]
+        G -->|Attention Weights| H[Pooled Account Representation]
+        H --> I[Phishing Probability]
+        H --> J[Phish-Masked Contrastive Loss]
+    end
+    
+    G -.->|High Attention| K[Forensic Localization Hit]
+```
+
 ## 3.1 Feature Extraction and Sliding Window Formulation
 We utilize a large-scale dataset comprising 35,340 accounts (Table 1), sourced from the original BERT4ETH corpus. Transaction sequences in Ethereum exhibit extreme variance in length; normal accounts may have a handful of transactions, while exchanges or active phishers may have tens of thousands (up to 60,410 in our dataset). 
 
@@ -170,7 +192,9 @@ Analysis of the 91 accounts where Hit@1 failed reveals a clear systematic patter
 We compare TMIL-ETH against 7 fundamental machine learning baselines across three paradigms. Critically, **account-level classification** (AUC, F1) and **forensic localization** (Hit@1) are evaluated as two separate tracks with distinct evaluation protocols, because they operate at different problem granularities.
 
 **Track A — Account-Level Classification (AUC & F1):**
-All models are evaluated on a shared held-out validation split of 4,233 accounts. TMIL-ETH's metrics in this track are from Nested CV (Context A, Section 4.1) and thus represent a more conservative and reliable estimate than the single-split baselines.
+All models are evaluated on a shared held-out validation split of 4,233 accounts. TMIL-ETH's metrics in this track are from Nested CV (Context A, Section 4.1) and thus represent a more conservative and reliable estimate than the single-split baselines. 
+
+*The Classification Gap Trade-off:* Random Forest (0.9712) and GBM (0.9725) achieve marginally higher AUCs than TMIL-ETH (0.9536). However, traditional ML models aggregate all sequence data into global statistical profiles, functioning as impenetrable black boxes that are incapable of forensic localization (N/A in Track B). TMIL-ETH accepts this ~1.8% AUC reduction as a deliberate architectural trade-off to preserve localized temporal constraints, exchanging a microscopic drop in classification accuracy for the ability to forensically pinpoint the exact laundering bursts—a capability fundamentally impossible for RF and GBM.
 
 **Track B — Forensic Window Localization (Hit@1):**
 Only models that produce instance-level (window-level) attention scores can participate in this track. Account-level classifiers (RF, GBM, Bi-LSTM, BERT4ETH) are excluded (N/A). For ABMIL and TMIL-ETH, we must note a critical **granularity distinction**: ABMIL's instances are complete sliding windows (macro-level, W=200 transactions each), while TMIL-ETH's instances are individual transactions within a window (micro-level). To ensure a fair evaluation on the same task, we evaluate both models using the same Hit@1 definition: whether the model's top-ranked attention window overlaps with the ground-truth laundering burst.

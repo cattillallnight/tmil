@@ -12,10 +12,11 @@ from pathlib import Path
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 RESULTS_DIR = Path(__file__).parent / "results"
 
-ETHERSCAN_BASE = "https://api.etherscan.io/api"
+ETHERSCAN_BASE = "https://api.etherscan.io/v2/api"
 
 def get_txlist(address, api_key):
     params = {
+        "chainid": "1",
         "module": "account", "action": "txlist",
         "address": address, "startblock": 0,
         "endblock": 99999999, "sort": "asc",

@@ -97,7 +97,8 @@ def evaluate_localization(model, test_recs, gt_dict, device):
             if addr not in gt_dict: continue
             
             wins = r["windows"]
-            gt_set = set(gt_dict[addr]["ground_truth_indices"])
+            burst = gt_dict[addr]["ground_truth_bursts"][0]
+            gt_set = set(range(burst["start_tx_idx"], burst["end_tx_idx"] + 1))
             if len(wins) == 0 or len(gt_set) == 0: continue
             
             total += 1
