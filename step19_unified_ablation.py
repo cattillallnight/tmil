@@ -91,8 +91,13 @@ def evaluate_localization(model, test_recs, gt_dict, device):
     model.eval()
     hit1 = 0
     total = 0
+    
+    # Use AccountWindowDataset to properly format the data
+    test_ds = AccountWindowDataset(test_recs, W=200)
+    # We evaluate one by one to keep track of the address
+    
     with torch.no_grad():
-        for r in test_recs:
+        for i, r in enumerate(test_recs):
             addr = r["address"].lower()
             if addr not in gt_dict: continue
             
@@ -102,8 +107,13 @@ def evaluate_localization(model, test_recs, gt_dict, device):
             if len(wins) == 0 or len(gt_set) == 0: continue
             
             total += 1
-            hc = torch.tensor(r["hand_crafted"], dtype=torch.float32).unsqueeze(0).to(device)
-            bert = torch.tensor(r["bert_embedding"], dtype=torch.float32).unsqueeze(0).to(device)
+            
+            # Fetch formatted tensors from dataset
+            hc_tensor, bert_tensor, _ = test_ds[i]
+            
+            # Add batch dimension and broadcast bert
+            hc = hc_tensor.unsqueeze(0).to(device)       # (1, W, 4)
+            bert = bert_tensor.unsqueeze(0).unsqueeze(0).expand(1, hc.shape[1], -1).to(device) # (1, W, 64)
             
             _, attn = model(hc, bert)
             attn = attn.squeeze(0).cpu().numpy()
