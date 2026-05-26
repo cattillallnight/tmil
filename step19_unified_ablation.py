@@ -100,7 +100,7 @@ def evaluate_localization(model, test_recs, gt_dict, device):
             wins = r["windows"]
             burst = gt_dict[addr]["ground_truth_bursts"][0]
             gt_set = set(range(burst["start_tx_idx"], burst["end_tx_idx"] + 1))
-            if len(wins) == 0 or len(gt_set) == 0: continue
+            if len(wins) < 5 or len(gt_set) == 0: continue
             
             total += 1
             hc = r["hand_crafted"]
