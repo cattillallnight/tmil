@@ -80,30 +80,31 @@ To ensure the hand-crafted features are not redundant, we performed an Orthogona
 
 While $density$ and $counterparty\_novelty$ show partial redundancy with the BERT latent space ($R^2 > 0.30$), we retain all four features in the fused representation for two reasons: (1) the overlap is partial, not complete, meaning the features still encode variance not captured by BERT alone; and (2) the redundancy effect is directly investigated in our Ablation Study (Section 5.3, *Global Normalization* configuration), where we empirically confirm that removing these features does not improve overall AUC. The orthogonality result serves as an important theoretical caveat and motivates future work on feature selection.
 
-## 3.2 Triple Pooling Attention Mechanism
+## 3.2 Gated Attention Mechanism
 Given a bag of instances $A = \{x_1, x_2, ..., x_N\}$, each instance is first passed through a shared Multi-Layer Perceptron (MLP) feature extractor $f_\theta$, mapping $x_i \in \mathbb{R}^{200 \times 68}$ to a dense representation $h_i \in \mathbb{R}^{64}$.
 
-Standard ABMIL utilizes a gated attention network to compute an attention weight $a_i$ for each instance:
+To strictly adhere to the mathematical foundations of permutation-invariant Multiple Instance Learning while maximizing the signal-to-noise ratio in highly imbalanced transactional data, TMIL-ETH employs a **Gated Attention Mechanism** (adapted from Ilse et al., 2018).
+
+In blockchain phishing, the vast majority of an account's transactions (>95%) serve as "normal camouflage," while illicit asset transfers occur in extremely brief bursts. Standard attention mechanisms (using a simple `tanh` projection) struggle to completely silence this overwhelming camouflage, as `tanh` limits values to $[-1, 1]$. To overcome this, we introduce a non-linear sigmoid gate $\text{sigm}(U h_i^T)$, which allows the network to learn a true suppression function capable of aggressively driving the attention weights of irrelevant windows to exactly zero.
+
+For a bag of transactional instances $H = \{h_1, h_2, ..., h_N\}$, the attention weight $a_i$ for each instance is computed as:
+
 $$ a_i = \frac{\exp\{w^T (\tanh(V h_i^T) \odot \text{sigm}(U h_i^T))\}}{\sum_{j=1}^N \exp\{w^T (\tanh(V h_j^T) \odot \text{sigm}(U h_j^T))\}} $$
-The standard bag representation is the attention-weighted sum: $z_{attn} = \sum_{i=1}^N a_i h_i$.
 
-However, in blockchain forensics, phishing accounts exhibit both sharp anomalies (e.g., a sudden laundering burst) and long-term deceptive baseline behaviors (e.g., mimicking normal DeFi interactions). To capture this duality, we propose a **Triple Pooling Mechanism**:
-$$ z_{mean} = \frac{1}{N} \sum_{i=1}^N h_i \quad \text{(captures the macroscopic behavioral baseline)} $$
-$$ z_{max} = \max_{i} (h_i) \quad \text{(captures the sharpest, most anomalous instance)} $$
-The final bag representation $Z_A$ is the concatenation of all three pooling strategies:
-$$ Z_A = [z_{attn} \parallel z_{mean} \parallel z_{max}] \in \mathbb{R}^{192} $$
-$Z_A$ is passed through a classifier $C_\phi$ to output the bag-level phishing probability $p_A$.
+where $V$ and $U$ are trainable parameter matrices, $w$ is a trainable weight vector, and $\odot$ denotes element-wise multiplication. The final pooled representation is the attention-weighted sum $Z = \sum_{i=1}^N a_i h_i$. This representation $Z$ is then passed through a fully connected MLP classifier to output the final phishing probability $p_{acct} \in [0, 1]$.
 
-## 3.3 Phish-Masked Compound Loss
-A known failure mode of MIL is attention collapse, where the model distributes attention uniformly or focuses on spurious correlations. To enforce temporal continuity and sharp discrimination, we introduce a Compound Loss.
+## 3.3 Permutation-Invariant Contrastive Loss
+While the Gated Attention architecture effectively identifies phishing patterns, unconstrained attention mechanisms can suffer from instability when training on highly imbalanced sequence lengths. Previous iterations of MIL models often incorporated structural or temporal regularization (such as consistency penalties between adjacent instances). However, penalizing temporal ordering explicitly violates the fundamental MIL assumption of permutation invariance, leading to conflicting gradients and high cross-validation variance.
 
-Let $H_{bag} = \{h_1, ..., h_N\}$ be the instance representations. We define:
-- **Consistency Loss ($L_{cons}$):** Penalizes high variance among sequential instances to promote temporal smoothness. $L_{cons} = \frac{1}{N-1} \sum_{i=1}^{N-1} ||h_{i+1} - h_i||_2^2$
-- **Contrastive Loss ($L_{cont}$):** Encourages the model to push the representations of the most and least attended instances apart. $L_{cont} = \max(0, m - ||h_{argmax(a)} - h_{argmin(a)}||_2)$
+To resolve this, TMIL-ETH relies on a strictly permutation-invariant **Phish-Masked Contrastive Loss**. The total loss is defined as:
 
-Crucially, normal accounts (Negative Bags) do not contain phishing instances; thus, forcing contrastive separation on a normal account destabilizes the latent space. We introduce a **Phish-Mask** indicator function $\mathbb{I}(y_A = 1)$:
-$$ L_{total} = L_{BCE}(p_A, y_A) + \mathbb{I}(y_A = 1) \Big( \lambda_1 L_{cons} + \lambda_2 L_{cont} \Big) $$
-Based on empirical tuning, we set $\lambda_1 = 0.3$ and $\lambda_2 = 0.2$.
+$$ L_{total} = L_{BCE}(p, y_A) + \mathbb{I}(y_A=1) \cdot \lambda L_{contrast} $$
+
+1.  **Binary Cross-Entropy ($L_{BCE}$)**: Standard classification loss for the final predictions.
+2.  **Contrastive Loss ($L_{contrast}$)**: A hinge loss that explicitly enforces a margin $m$ between the average attention-weighted score of phishing accounts and normal accounts, preventing the attention mechanism from collapsing or highlighting normal camouflage.
+    $$ L_{contrast} = \max(0, m - (\bar{p}_{phish} - \bar{p}_{normal})) $$
+
+Crucially, the indicator function $\mathbb{I}(y_A=1)$ ensures that $L_{contrast}$ is *only* optimized conditionally, ensuring that the gradient focuses exclusively on distinguishing the illicit bursts from the background noise.
 
 
 # 4. Experimental Setup
@@ -130,7 +131,7 @@ By cross-referencing the on-chain transaction hashes with our local dataset, we 
 # 5. Results and Evaluation
 
 ## 5.1 Account-Level Detection and \v{S}id\'ak Correction
-TMIL-ETH demonstrates exceptional performance in identifying phishing accounts. In the rigorous Nested CV evaluation, the model achieved an aggregate AUC of $0.9459 \pm 0.0158$ and an F1 score of $0.7493$ at the baseline 1:4 class ratio.
+TMIL-ETH demonstrates exceptional performance in identifying phishing accounts. In the rigorous Nested CV evaluation, the model achieved an aggregate AUC of $0.9536 \pm 0.0254$ and an F1 score of $0.7521$ at the baseline 1:4 class ratio.
 
 **Statistical False Positive Correction:**
 A critical challenge in sliding window inference is FPR inflation. As the number of windows $K$ increases, the probability of a false positive naturally rises, overwhelming security teams with alerts. We applied the mathematical \v{S}id\'ak correction to establish a theoretical threshold that bounds the global bag-level FPR.
@@ -187,7 +188,7 @@ Under this unified definition, ABMIL achieves 96.88% Hit@1. However, this figure
 | Deep MIL | Mean-Pooling MIL | 0.5074 | 0.3335 |
 | Deep MIL | Max-Pooling MIL | 0.5074 | 0.3335 |
 | Deep MIL | ABMIL (Ilse 2018) | 0.5439 | 0.3374 |
-| **Proposed** | **TMIL-ETH (Nested CV)** | **0.9459** | **0.7493** |
+| **Proposed** | **TMIL-ETH (Nested CV)** | **0.9536** | **0.7521** |
 
 **Table 4: Track B — Forensic Window Localization**
 
