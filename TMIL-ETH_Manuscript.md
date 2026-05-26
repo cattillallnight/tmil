@@ -206,8 +206,10 @@ Under this strict unified definition, random guessing yields an expected Hit@1 o
 | Random Baseline | 11.37% | N/A |
 | First Window Heuristic | 23.08% | No (post-hoc only) |
 | Max Value Heuristic | 61.54% | No (post-hoc only) |
-| ABMIL (Ilse 2018) | 40.00% | Yes |
+| ABMIL (Ilse 2018) | 40.00% | Yes (AUC 0.5439) |
 | **TMIL-ETH (Ours)** | **40.00%** | **Yes (AUC 0.9536)** |
+
+*Note: ABMIL and TMIL-ETH achieve an identical 40.00% Hit@1 (6/15 accounts each), constituting a statistical tie at this sample size. The critical differentiator between the two MIL architectures lies in Track A: ABMIL collapses to near-random classification (AUC 0.5439), while TMIL-ETH achieves near-SOTA detection (AUC 0.9536). ABMIL's localization therefore has no practical utility, as it cannot first identify which accounts are phishing. TMIL-ETH is the only framework that delivers both reliable classification and forensic localization jointly.*
 
 **Table 6: Track A — Account-Level Classification**
 
@@ -239,7 +241,7 @@ To validate the architectural components and feature selection, we conduct a uni
 
 **Ablation Insights and the "Scale Paradox":**
 1. **Feature Orthogonality:** Despite `density` and `counterparty_novelty` exhibiting high collinearity with BERT embeddings during linear probing (Table 2 — Orthogonality Validation), removing them ("Drop 2 Features") causes a severe AUC degradation from 0.8493 to 0.5900. This empirical result proves these hand-crafted features provide critical orthogonal signals that the network heavily relies upon, justifying their retention.
-2. **The Scale Paradox of Regularization:** The Context B ablation reveals a counter-intuitive but theoretically sound phenomenon: on a constrained, artificially balanced 5,000-sample subset, the simpler variants ("No Contrastive Loss", "No Sigmoid Gate") achieve artificially higher short-term metrics (e.g., AUC 0.9829). This occurs because the Gating mechanism and Contrastive Loss act as strong regularizers specifically engineered to handle the extreme 1:4 class imbalance and massive sequence lengths (up to 60,000 transactions) found in the full on-chain dataset. In small-scale, balanced validation, these regularizers prevent the model from memorizing the limited dataset, lowering relative AUC. Importantly, a full-scale ablation without the Contrastive Loss component (conducted separately on all 35,340 accounts during architecture selection) confirmed a consistent degradation in AUC relative to the full model, validating the necessity of this component at scale. The Context B figures reported here are therefore best understood as convergence-rate indicators rather than final performance estimates.
+2. **The Scale Paradox of Regularization:** The Context B ablation reveals a counter-intuitive but theoretically sound phenomenon: on a constrained, artificially balanced 5,000-sample subset, the simpler variants ("No Contrastive Loss", "No Sigmoid Gate") achieve artificially higher short-term metrics (e.g., AUC 0.9829). This occurs because the Gating mechanism and Contrastive Loss act as strong regularizers specifically engineered to handle the extreme 1:4 class imbalance and massive sequence lengths (up to 60,000 transactions) found in the full on-chain dataset. In small-scale, balanced validation, these regularizers prevent the model from memorizing the limited dataset, lowering relative AUC. The Context B figures reported here are therefore best understood as convergence-rate indicators rather than final performance estimates; the full-scale Context A evaluation (Table 6) remains the authoritative comparison.
 
 # 6. Limitations and Future Work
 
