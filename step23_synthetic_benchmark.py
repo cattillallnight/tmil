@@ -6,11 +6,13 @@ import pickle
 import numpy as np
 import pandas as pd
 import torch
+from torch.utils.data import DataLoader
 import itertools
 from pathlib import Path
 
-from utils import RESULTS_DIR, sliding_windows
-from step05_model_architecture import GatedTMILETH
+from utils import RESULTS_DIR
+from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
+from step07_training import AccountWindowDataset, collate_fn, train_one_epoch
 
 def calculate_iou(pred_set, gt_set):
     intersection = len(pred_set.intersection(gt_set))
@@ -76,17 +78,30 @@ def main():
     normal_recs = sorted(normal_recs, key=lambda x: x["n_tx"], reverse=True)[:500]
     print(f"  Selected {len(normal_recs)} Host Sequences (Normal Accounts).")
     
-    print("\n[2] Loading trained model (GatedTMILETH)...")
-    # Chúng ta sử dụng model vừa được train trong step20 hoặc step12 
-    # Nhưng nếu không có checkpoint trực tiếp, ta có thể khởi tạo và mô phỏng 
-    # Tuy nhiên, trong thực tế model đã lưu ở results/checkpoints/tmil_eth_final.pt
-    model_path = RESULTS_DIR / "checkpoints" / "tmil_eth_final.pt"
+    # We train on a small subset of accounts not in the host sequences
+    host_addrs = {r["address"].lower() for r in normal_recs}
+    train_pool_phish = [r for r in records if r["address"].lower() not in host_addrs and r["label"] == 1]
+    train_pool_norm = [r for r in records if r["address"].lower() not in host_addrs and r["label"] == 0]
+    
+    rng = np.random.RandomState(42)
+    train_recs = rng.choice(train_pool_phish, min(100, len(train_pool_phish)), replace=False).tolist() + \
+                 rng.choice(train_pool_norm, min(400, len(train_pool_norm)), replace=False).tolist()
+    
+    print("\n[2] Training model (10 epochs) to extract Attention scores...")
     model = GatedTMILETH(4, 64).to(device)
-    if model_path.exists():
-        model.load_state_dict(torch.load(model_path, map_location=device))
-        print(f"  Loaded checkpoint from {model_path}")
-    else:
-        print(f"  WARNING: {model_path} not found. Using untrained weights!")
+    loss_fn = GatedCompoundLoss(lambda1=0.3)
+    
+    ds = AccountWindowDataset(train_recs, W=200)
+    loader = DataLoader(ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
+    
+    import torch.optim as optim
+    model.freeze_bert()
+    opt1 = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
+    for _ in range(5): train_one_epoch(model, loader, loss_fn, opt1, device, 1.0)
+        
+    model.unfreeze_all()
+    opt2 = optim.AdamW(model.parameters(), lr=1e-4)
+    for _ in range(5): train_one_epoch(model, loader, loss_fn, opt2, device, 1.0)
         
     model.eval()
     
