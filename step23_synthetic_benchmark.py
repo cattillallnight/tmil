@@ -19,7 +19,7 @@ def calculate_iou(pred_set, gt_set):
     union = len(pred_set.union(gt_set))
     return intersection / union if union > 0 else 0
 
-def inject_anomalies(hc_original, n_inject, position, cluster, seed):
+def inject_anomalies(hc_original, hc_phisher, n_inject, position, cluster, seed):
     rng = np.random.RandomState(seed)
     n_tx = hc_original.shape[0]
     
@@ -46,12 +46,23 @@ def inject_anomalies(hc_original, n_inject, position, cluster, seed):
             
     # Modify
     hc_mod = hc_original.copy()
-    # Anomaly vector representing Tornado Cash cashout
-    # High z_amount (5.0), high density (0.8), high novelty (1), high value_ratio (1)
-    anomaly_vec = np.array([5.0, 0.8, 1.0, 1.0], dtype=np.float32)
     
-    for idx in indices:
-        hc_mod[idx] = anomaly_vec
+    # Extract the REAL most anomalous transactions from a real phisher's sequence
+    # (Sort by z_amount descending)
+    phish_z = hc_phisher[:, 0]
+    top_phish_idx = np.argsort(phish_z)[::-1]
+    
+    # Get the top n_inject most anomalous transactions from this phisher
+    real_anomalies = []
+    for i in range(min(n_inject, len(top_phish_idx))):
+        real_anomalies.append(hc_phisher[top_phish_idx[i]])
+        
+    # If the phisher didn't have enough txs (very rare), just cycle them
+    while len(real_anomalies) < n_inject:
+        real_anomalies.append(real_anomalies[-1])
+        
+    for i, idx in enumerate(indices):
+        hc_mod[idx] = real_anomalies[i]
         
     return hc_mod, indices
 
@@ -131,18 +142,20 @@ def main():
         clust = s["cluster"]
         
         for r_idx, rec in enumerate(normal_recs):
+            # Lấy 1 phisher thật làm mẫu để trích xuất giao dịch xả tiền và BERT
+            phisher_template = train_pool_phish[r_idx % len(train_pool_phish)]
+            phisher_hc = phisher_template["hand_crafted"]
+            phisher_bert = phisher_template["bert_embedding"]
+            
             # Inject
             seed = 42 + i * 1000 + r_idx
-            hc_mod, gt_indices = inject_anomalies(rec["hand_crafted"], n_inj, pos, clust, seed)
+            hc_mod, gt_indices = inject_anomalies(rec["hand_crafted"], phisher_hc, n_inj, pos, clust, seed)
             if len(gt_indices) == 0:
                 continue
                 
             gt_set = set(gt_indices)
             
-            # TRICK: To evaluate LOCALIZATION (Attention), the model must believe this is a Phishing account.
-            # If we use the Normal account's BERT embedding, the model outputs p~0 and Attention is uniform.
-            # We borrow a Phisher's BERT embedding to activate the model's phishing-detection pathways.
-            phisher_bert = train_pool_phish[r_idx % len(train_pool_phish)]["bert_embedding"]
+            # TRICK: Dùng BERT của phisher để kích hoạt Attention
             bert = phisher_bert
             
             wins = rec["windows"]
