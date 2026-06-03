@@ -15,7 +15,7 @@ import torch
 from pathlib import Path
 
 from utils import RESULTS_DIR
-from tmil_model import TMILETH, CompoundLoss
+from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
@@ -24,7 +24,7 @@ FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
 def demo_compound_loss():
     """Demonstrate phish_mask guard and compound loss components."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = TMILETH(hand_crafted_dim=4, bert_dim=64).to(device)
+    model = GatedTMILETH(hand_crafted_dim=4, bert_dim=64).to(device)
 
     # Simulated batch of 8 windows: 2 phishing, 6 normal
     B, W, HAND, BERT = 8, 200, 4, 64
@@ -46,18 +46,15 @@ def demo_compound_loss():
     print(f"  Normal scores:  {p_acct[normal_mask].detach().numpy().round(4).tolist()}")
 
     # Compound loss
-    loss_fn = CompoundLoss(lambda1=0.3, lambda2=0.2)
+    loss_fn = GatedCompoundLoss(lambda1=0.3)
 
-    # Simulate 4 window scores per account for L_consistency
-    p_wins = torch.rand(B, 4)
-    l_total, info = loss_fn(p_acct, y, p_wins)
+    l_total, info = loss_fn(p_acct, y)
 
     print("\nCompound Loss Components:")
     print(f"  L_BCE:          {info.get('l_bce', 0):.4f}")
-    print(f"  L_consistency:  {info.get('l_consistency', 0):.4f}  (phish only, var of window scores)")
     print(f"  L_contrast:     {info.get('l_contrast', 0):.4f}  (phish only, margin hinge)")
     print(f"  L_total:        {info.get('l_total', 0):.4f}")
-    print(f"\n  Formula: L_total = L_BCE + 0.3*L_consistency + 0.2*L_contrast")
+    print(f"\n  Formula: L_total = L_BCE + 0.3*L_contrast")
     print(f"  phish_mask guard: L_consistency and L_contrast computed ONLY on phishing bags")
     print(f"  This prevents FPR increase on normal accounts")
 

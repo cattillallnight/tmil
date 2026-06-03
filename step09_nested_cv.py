@@ -22,8 +22,8 @@ from sklearn.metrics import roc_auc_score, f1_score, roc_curve, precision_score,
 from torch.utils.data import DataLoader
 
 from utils import RESULTS_DIR
-from tmil_model import TMILETH, CompoundLoss
-from step7_two_phase_training import (AccountWindowDataset, collate_fn,
+from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
+from step07_training import (AccountWindowDataset, collate_fn,
                                        train_one_epoch, evaluate_epoch)
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -69,8 +69,8 @@ def qmetrics(y_true, y_score, tau=0.5):
 
 
 def train_eval(tr, va, l1, l2, device):
-    loss_fn = CompoundLoss(lambda1=l1, lambda2=l2)
-    model   = TMILETH(4, 64).to(device)
+    loss_fn = GatedCompoundLoss(lambda1=l1)
+    model   = GatedTMILETH(4, 64).to(device)
     tr_ds = AccountWindowDataset(tr, W=W)
     va_ds = AccountWindowDataset(va, W=W)
     tr_ld = DataLoader(tr_ds, BATCH_SIZE, shuffle=True,  collate_fn=collate_fn, num_workers=0)

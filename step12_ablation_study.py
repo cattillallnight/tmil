@@ -13,8 +13,8 @@ from sklearn.metrics import roc_auc_score, f1_score
 from torch.utils.data import DataLoader
 
 from utils import RESULTS_DIR
-from step7_two_phase_training import AccountWindowDataset, collate_fn
-from gated_tmil import GatedTMILETH, GatedCompoundLoss
+from step07_training import AccountWindowDataset, collate_fn
+from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
 
 def calculate_iou(pred_set, gt_set):
     intersection = len(pred_set.intersection(gt_set))

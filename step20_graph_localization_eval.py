@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
 from utils import RESULTS_DIR
-from step05_model_architecture import TMILETH, CompoundLoss
+from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
 from step07_training import AccountWindowDataset, collate_fn, train_one_epoch
 
 def calculate_iou(pred_set, gt_set):
@@ -73,8 +73,8 @@ def main():
     print(f"  Tập Test ẩn (Hidden Eval Set)         : {len(test_recs)} accounts.")
     
     print("\n[2] Training model (10 epochs, GPU-accelerated) to extract Attention scores...")
-    model = TMILETH(4, 64).to(device)
-    loss_fn = CompoundLoss(lambda1=0.3, lambda2=0.2)
+    model = GatedTMILETH(4, 64).to(device)
+    loss_fn = GatedCompoundLoss(lambda1=0.3)
     
     ds = AccountWindowDataset(train_recs, W=200)
     loader = DataLoader(ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
