@@ -11,8 +11,8 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
 from utils import RESULTS_DIR
-from tmil_model import TMILETH, CompoundLoss
-from step7_two_phase_training import AccountWindowDataset, collate_fn, train_one_epoch
+from step05_model_architecture import TMILETH, CompoundLoss
+from step07_training import AccountWindowDataset, collate_fn, train_one_epoch
 
 def calculate_iou(pred_set, gt_set):
     intersection = len(pred_set.intersection(gt_set))
