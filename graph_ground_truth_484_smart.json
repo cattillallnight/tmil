@@ -1,0 +1,981 @@
+[
+  {
+    "account_address": "0x4ac6307a85d83962503f86457de9c331a6926f48",
+    "total_txs_fetched": 9997,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 8486
+      }
+    ]
+  },
+  {
+    "account_address": "0xb2628597aac64b136c2aae3a516ea79a44817d77",
+    "total_txs_fetched": 9999,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 104,
+        "end_tx_idx": 8952
+      }
+    ]
+  },
+  {
+    "account_address": "0xc2d7cf95645d33006175b78989035c7c9061d3f9",
+    "total_txs_fetched": 2022,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 1941,
+        "end_tx_idx": 1942
+      }
+    ]
+  },
+  {
+    "account_address": "0x4639cd8cd52ec1cf2e496a606ce28d8afb1c792f",
+    "total_txs_fetched": 7087,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 7086,
+        "end_tx_idx": 7086
+      }
+    ]
+  },
+  {
+    "account_address": "0xc249fe0288e75e47e62b138de8d020c9fee5a9f5",
+    "total_txs_fetched": 3042,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 3039,
+        "end_tx_idx": 3041
+      }
+    ]
+  },
+  {
+    "account_address": "0xb547027a4ccd46ec98199fa88aaedf5aa981db26",
+    "total_txs_fetched": 3110,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 3109,
+        "end_tx_idx": 3109
+      }
+    ]
+  },
+  {
+    "account_address": "0x917a417d938b9f9e6ae7f9e5253fb6de410343e3",
+    "total_txs_fetched": 3032,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 438
+      }
+    ]
+  },
+  {
+    "account_address": "0x7c9001c50ea57c1b2ec1e3e63cf04c297534bfc1",
+    "total_txs_fetched": 2893,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 78,
+        "end_tx_idx": 86
+      }
+    ]
+  },
+  {
+    "account_address": "0x0b79ecd2128ea2ec74681160da517f851b89555a",
+    "total_txs_fetched": 2328,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 1472
+      }
+    ]
+  },
+  {
+    "account_address": "0x4a008b542165fec7ec3343a35ceed6bc4f6b2280",
+    "total_txs_fetched": 1065,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 1064,
+        "end_tx_idx": 1064
+      }
+    ]
+  },
+  {
+    "account_address": "0x8f9a8dc65a423c7dec9261aa6010db738407c879",
+    "total_txs_fetched": 2034,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 2033
+      }
+    ]
+  },
+  {
+    "account_address": "0x74886dd45da313f3d3d32235fed4595827d0865d",
+    "total_txs_fetched": 2073,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 2022
+      }
+    ]
+  },
+  {
+    "account_address": "0x9c51699b4cd43ba4f6bc81d70b21291b63e6d130",
+    "total_txs_fetched": 1965,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 1964,
+        "end_tx_idx": 1964
+      }
+    ]
+  },
+  {
+    "account_address": "0xf26c5f062f3638ab7e880f6e9efc49c2157a1a13",
+    "total_txs_fetched": 1854,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 401
+      }
+    ]
+  },
+  {
+    "account_address": "0xda3f8db5f3ecb711a5c6952f0b14eb0005ebf63c",
+    "total_txs_fetched": 1619,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 18,
+        "end_tx_idx": 735
+      }
+    ]
+  },
+  {
+    "account_address": "0x3cbd2e6143f057bd49ffb4c7058217a5900c35d3",
+    "total_txs_fetched": 1566,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 8,
+        "end_tx_idx": 940
+      }
+    ]
+  },
+  {
+    "account_address": "0xa7f72bf63edeca25636f0b13ec5135296ca2ebb2",
+    "total_txs_fetched": 1569,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 1550
+      }
+    ]
+  },
+  {
+    "account_address": "0x21f74c6bbc1e3ab9f0205e12de3a9daa14351aed",
+    "total_txs_fetched": 1619,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 706,
+        "end_tx_idx": 1104
+      }
+    ]
+  },
+  {
+    "account_address": "0xf9d25eb4c75ed744596392cf89074afaa43614a8",
+    "total_txs_fetched": 1263,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 2,
+        "end_tx_idx": 1262
+      }
+    ]
+  },
+  {
+    "account_address": "0xb0dd2b7fea3c5790b39433cbd3e8fd35fd3cf662",
+    "total_txs_fetched": 1476,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 289
+      }
+    ]
+  },
+  {
+    "account_address": "0x41ad2bc63a2059f9b623533d87fe99887d794847",
+    "total_txs_fetched": 1380,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 2,
+        "end_tx_idx": 18
+      }
+    ]
+  },
+  {
+    "account_address": "0xd4db748e560f50fced11bb27255b45fe14366f00",
+    "total_txs_fetched": 1350,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 980
+      }
+    ]
+  },
+  {
+    "account_address": "0x2c97fc2afaac350b42baf0223e0a42459ebe21d6",
+    "total_txs_fetched": 1330,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 1301
+      }
+    ]
+  },
+  {
+    "account_address": "0xa2065164a26ecd3775dcf22510ad1d2daef8bd2a",
+    "total_txs_fetched": 1709,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 1708,
+        "end_tx_idx": 1708
+      }
+    ]
+  },
+  {
+    "account_address": "0xc8e1ba6a289905c45805208232dd9be1e729bea9",
+    "total_txs_fetched": 1086,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 2,
+        "end_tx_idx": 283
+      }
+    ]
+  },
+  {
+    "account_address": "0x1aa18a80822b3fbed557f279b8666bb4962ad6de",
+    "total_txs_fetched": 979,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 404,
+        "end_tx_idx": 422
+      }
+    ]
+  },
+  {
+    "account_address": "0x1164246850f8fca79e14fd256fa6b6dac857b873",
+    "total_txs_fetched": 1069,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 76,
+        "end_tx_idx": 928
+      }
+    ]
+  },
+  {
+    "account_address": "0x12ccf4b7010f5b201c8fda0f880f0ba63b1a88f3",
+    "total_txs_fetched": 1023,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 1015
+      }
+    ]
+  },
+  {
+    "account_address": "0xb80db67828f44318aacb796c686d30d9d3f81e75",
+    "total_txs_fetched": 1021,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 289
+      }
+    ]
+  },
+  {
+    "account_address": "0xaedc8a3afc62a3deee4eb232bfdb28058bf554d8",
+    "total_txs_fetched": 983,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 423
+      }
+    ]
+  },
+  {
+    "account_address": "0x219b9040eb7d8d8c2e8e84b87ce9ac1c83071980",
+    "total_txs_fetched": 981,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 980,
+        "end_tx_idx": 980
+      }
+    ]
+  },
+  {
+    "account_address": "0x6aef2850c2ce2ef583ae8a36be3357080608bdc3",
+    "total_txs_fetched": 858,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 272,
+        "end_tx_idx": 463
+      }
+    ]
+  },
+  {
+    "account_address": "0xbfa82fbe0e66d8e2b7dcc16328db9ecd70533d13",
+    "total_txs_fetched": 866,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 865,
+        "end_tx_idx": 865
+      }
+    ]
+  },
+  {
+    "account_address": "0x1efd59f9892c6c797a41691029b607f972928ce9",
+    "total_txs_fetched": 848,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 527
+      }
+    ]
+  },
+  {
+    "account_address": "0x556ad0b1b25ca2198b65feddbe79c0c176bd8233",
+    "total_txs_fetched": 978,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 47,
+        "end_tx_idx": 69
+      }
+    ]
+  },
+  {
+    "account_address": "0x89474953d6bc8275b88e331fdf1a92d552563712",
+    "total_txs_fetched": 808,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 24
+      }
+    ]
+  },
+  {
+    "account_address": "0x7848aa63e9beec2405dc3e5e58edb568a8dd0231",
+    "total_txs_fetched": 801,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 774
+      }
+    ]
+  },
+  {
+    "account_address": "0xeda5066780de29d00dfb54581a707ef6f52d8113",
+    "total_txs_fetched": 693,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 654
+      }
+    ]
+  },
+  {
+    "account_address": "0x27f97bc09a4e28d5935a08e2810b3e3c94f04220",
+    "total_txs_fetched": 727,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 726
+      }
+    ]
+  },
+  {
+    "account_address": "0xde09020653ca303cfc143d23a18183299558065f",
+    "total_txs_fetched": 752,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 486
+      }
+    ]
+  },
+  {
+    "account_address": "0xb3958757fd6d2dfbcc934f39faa1f82210da6f50",
+    "total_txs_fetched": 765,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 38,
+        "end_tx_idx": 555
+      }
+    ]
+  },
+  {
+    "account_address": "0x9477f48a278909a94d8cd9480dfa85d07103f004",
+    "total_txs_fetched": 807,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 806,
+        "end_tx_idx": 806
+      }
+    ]
+  },
+  {
+    "account_address": "0x1edd4a59d12a3f82fe666b448000f2ac46344b2d",
+    "total_txs_fetched": 740,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 241
+      }
+    ]
+  },
+  {
+    "account_address": "0xf0a924661b0263e5ce12756d07f45b8668c53380",
+    "total_txs_fetched": 559,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 558,
+        "end_tx_idx": 558
+      }
+    ]
+  },
+  {
+    "account_address": "0x079667f4f7a0b440ad35ebd780efd216751f0758",
+    "total_txs_fetched": 666,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 447
+      }
+    ]
+  },
+  {
+    "account_address": "0xe7b8ba1b19fc3935d659f29c613a7f9aad23cf7c",
+    "total_txs_fetched": 697,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 615
+      }
+    ]
+  },
+  {
+    "account_address": "0xfd6fce575e3a117a0d889d1b32b5e3d5e5c98bdb",
+    "total_txs_fetched": 686,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 662,
+        "end_tx_idx": 673
+      }
+    ]
+  },
+  {
+    "account_address": "0xb507ebc4c6b65a11502fe5f20f8ceebc7e155fb4",
+    "total_txs_fetched": 682,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 680,
+        "end_tx_idx": 681
+      }
+    ]
+  },
+  {
+    "account_address": "0x474057adf42f9f955e86aa1142740f9d7763e41e",
+    "total_txs_fetched": 685,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 4,
+        "end_tx_idx": 547
+      }
+    ]
+  },
+  {
+    "account_address": "0xea3a8bd1a99e16160832d6b473ce06c1058dff7e",
+    "total_txs_fetched": 676,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 485,
+        "end_tx_idx": 493
+      }
+    ]
+  },
+  {
+    "account_address": "0x03d18450b2ef96a94b2930e4c36d8a667ce51fc9",
+    "total_txs_fetched": 652,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 16,
+        "end_tx_idx": 323
+      }
+    ]
+  },
+  {
+    "account_address": "0xb00548770ea87482f024cd4292a975fea72e8f01",
+    "total_txs_fetched": 586,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 533
+      }
+    ]
+  },
+  {
+    "account_address": "0x8bec4d048dea07f3cc8b04151a99ca84ccb72f2e",
+    "total_txs_fetched": 625,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 566
+      }
+    ]
+  },
+  {
+    "account_address": "0xa1aee54a6d83671f8854e992fbfc2eaba9c7b674",
+    "total_txs_fetched": 665,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 337
+      }
+    ]
+  },
+  {
+    "account_address": "0x64f0d720ce8b97ba44cd002005d2dfa3186c0580",
+    "total_txs_fetched": 604,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 603,
+        "end_tx_idx": 603
+      }
+    ]
+  },
+  {
+    "account_address": "0x4bf722014e54aeab05fcf1519e6e4c0c3f742e43",
+    "total_txs_fetched": 615,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 506,
+        "end_tx_idx": 507
+      }
+    ]
+  },
+  {
+    "account_address": "0x9ef89d10d8c77755bfe263903966eebb73f721e8",
+    "total_txs_fetched": 599,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 327
+      }
+    ]
+  },
+  {
+    "account_address": "0x96a76213683e97de57e4f21947e40fbe74de31a1",
+    "total_txs_fetched": 611,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 563
+      }
+    ]
+  },
+  {
+    "account_address": "0xef9a5a27d876102256e24478828dc134abd2426b",
+    "total_txs_fetched": 592,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 212
+      }
+    ]
+  },
+  {
+    "account_address": "0x34278f6f40079eae344cbac61a764bcf85afc949",
+    "total_txs_fetched": 226,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 225
+      }
+    ]
+  },
+  {
+    "account_address": "0x96036e9b51f03cabb6fe30daad1544a73f795efc",
+    "total_txs_fetched": 1316,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 1310,
+        "end_tx_idx": 1315
+      }
+    ]
+  },
+  {
+    "account_address": "0x4f00b95c625c6d6ef72748d78c750fd6c84a8b85",
+    "total_txs_fetched": 575,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 453
+      }
+    ]
+  },
+  {
+    "account_address": "0x4d517d272ce8d879d8891518e70153b49d2cdb96",
+    "total_txs_fetched": 551,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 233
+      }
+    ]
+  },
+  {
+    "account_address": "0xb101f0eb0a8938769d4c3fd4f933b11627ca3768",
+    "total_txs_fetched": 555,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 554,
+        "end_tx_idx": 554
+      }
+    ]
+  },
+  {
+    "account_address": "0xc1e6e4d9fc0b7e555bb8634bcacc9a1067bec039",
+    "total_txs_fetched": 485,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 478,
+        "end_tx_idx": 484
+      }
+    ]
+  },
+  {
+    "account_address": "0x2306934ca884caa042dc595371003093092b2bbf",
+    "total_txs_fetched": 542,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 541,
+        "end_tx_idx": 541
+      }
+    ]
+  },
+  {
+    "account_address": "0xef57aa4b57587600fc209f345fe0a2687bc26985",
+    "total_txs_fetched": 557,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 3,
+        "end_tx_idx": 532
+      }
+    ]
+  },
+  {
+    "account_address": "0x2e16bd350cb5db830fb50328ab4df62fd4c16ae8",
+    "total_txs_fetched": 558,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 8,
+        "end_tx_idx": 471
+      }
+    ]
+  },
+  {
+    "account_address": "0x16b3dd2970ad3f19c6068c65777530830d33773e",
+    "total_txs_fetched": 67,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 66
+      }
+    ]
+  },
+  {
+    "account_address": "0x025f8ab40e72901ad04583c27077487cbe83cb67",
+    "total_txs_fetched": 746,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 304
+      }
+    ]
+  },
+  {
+    "account_address": "0x0fbdbb563b1e951129d25b8cb13bd11219294865",
+    "total_txs_fetched": 541,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 288
+      }
+    ]
+  },
+  {
+    "account_address": "0x40949225c4a1745a9946f6aaf763241c082cb9ac",
+    "total_txs_fetched": 497,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 481,
+        "end_tx_idx": 486
+      }
+    ]
+  },
+  {
+    "account_address": "0x1412eca9dc7daef60451e3155bb8dbf9da349933",
+    "total_txs_fetched": 147,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 146
+      }
+    ]
+  },
+  {
+    "account_address": "0xad401a5732cf3e9ed0c02c4e34cb27c6f2e7a3cf",
+    "total_txs_fetched": 514,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 513,
+        "end_tx_idx": 513
+      }
+    ]
+  },
+  {
+    "account_address": "0xfae752581b9fd547c1652d7a417efced94abd9e3",
+    "total_txs_fetched": 498,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 193,
+        "end_tx_idx": 470
+      }
+    ]
+  },
+  {
+    "account_address": "0x650d8acbde455717a98d613b316cb200e015de5d",
+    "total_txs_fetched": 511,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 505
+      }
+    ]
+  },
+  {
+    "account_address": "0xe56ea353abc25d1a1d49676e6d21c43fae668f3e",
+    "total_txs_fetched": 467,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 273,
+        "end_tx_idx": 286
+      }
+    ]
+  },
+  {
+    "account_address": "0x27f0259f58dd6b33c808cabe27f96810c0305a8f",
+    "total_txs_fetched": 482,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 52
+      }
+    ]
+  },
+  {
+    "account_address": "0x0945198dd98c78d88568004d775e33800cfe4bfa",
+    "total_txs_fetched": 601,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 491
+      }
+    ]
+  },
+  {
+    "account_address": "0xe2b7a0c7bc21e000b8327713513b9d4d2620a414",
+    "total_txs_fetched": 555,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 166,
+        "end_tx_idx": 189
+      }
+    ]
+  },
+  {
+    "account_address": "0xa51a9862855382b5879be35bcccebd15502cc70c",
+    "total_txs_fetched": 506,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 31,
+        "end_tx_idx": 46
+      }
+    ]
+  },
+  {
+    "account_address": "0x5f0dde29f4b4a1131b5f9648c974d2b3d26e5fd9",
+    "total_txs_fetched": 498,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 75
+      }
+    ]
+  },
+  {
+    "account_address": "0xee18e156a020f2b2b2dcdec3a9476e61fbde1e48",
+    "total_txs_fetched": 493,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 445,
+        "end_tx_idx": 446
+      }
+    ]
+  },
+  {
+    "account_address": "0x9527821d55f9e458d22b9f18f0d2eebb407b3c82",
+    "total_txs_fetched": 488,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 461
+      }
+    ]
+  },
+  {
+    "account_address": "0x39c8229a1698abe373bbf95bfca37be3e307e20c",
+    "total_txs_fetched": 489,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 365
+      }
+    ]
+  },
+  {
+    "account_address": "0x85e6cde845de593d4b8d53ae9fcf1897795ed0a7",
+    "total_txs_fetched": 486,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 443,
+        "end_tx_idx": 445
+      }
+    ]
+  },
+  {
+    "account_address": "0x7df1bd58e8fd49803e43987787adfecb4a0a086c",
+    "total_txs_fetched": 479,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 478
+      }
+    ]
+  },
+  {
+    "account_address": "0xa14d5da3c6bf2d9304fe6d4bc6942395b4de048b",
+    "total_txs_fetched": 454,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 291
+      }
+    ]
+  },
+  {
+    "account_address": "0x0ea17def7cd9c51c9d6ed0c47381bb7f0a2da1e3",
+    "total_txs_fetched": 500,
+    "source_report": "Temporal Density Clustering (7-day gap) + Graph L2 Cashout",
+    "graph_gt_bursts": [
+      {
+        "start_tx_idx": 0,
+        "end_tx_idx": 183
+      }
+    ]
+  }
+]
