@@ -176,6 +176,9 @@ def train_eval_dl(model, tr_recs, te_recs, device, epochs=EPOCHS_DL, lr=LR_DL):
             y = torch.tensor([[float(rec["label"])]], device=device)
             opt.zero_grad()
             prob, _ = model(x)
+            if torch.isnan(prob).any():
+                prob = torch.nan_to_num(prob, nan=0.5)
+            prob = torch.clamp(prob, 1e-7, 1.0 - 1e-7)
             loss = crit(prob, y)
             loss.backward()
             opt.step()
