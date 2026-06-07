@@ -21,20 +21,21 @@ def calculate_iou(pred_set, gt_set):
 
 def main():
     print("="*70)
-    print("TMIL-ETH - Step 20: Forensic Localization Eval (Time-Aware GT)")
+    print("TMIL-ETH - Step 13: Forensic Localization Eval (Time-Aware GT)")
     print("="*70)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     features_file = RESULTS_DIR / "step2_features.pkl"
     # === THE ULTIMATE GT: Time-Aware Cross-Reference & Tornado Cash ===
-    # Built by step22_time_aware_gt_builder.py
+    # Built by step12_time_aware_gt_builder.py
     # 1. Sender IN Normal AND Receiver IN Phisher
     # 2. Clustered by Time (Removes Outliers/Temporal Leakage)
     # 3. Endpoint mapped to Tornado Cash
-    gt_file = "time_aware_ground_truth.json"
+    TMIL_DIR = Path(__file__).parent
+    gt_file = TMIL_DIR / "ground_truth" / "time_aware_ground_truth.json"
     
     if not Path(gt_file).exists():
-        print(f"Error: {gt_file} not found. Run step22_time_aware_gt_builder.py first.")
+        print(f"Error: {gt_file} not found. Run step12_time_aware_gt_builder.py first.")
         return
         
     with open(gt_file, "r", encoding="utf-8") as f:
@@ -206,7 +207,7 @@ def main():
     print("* ZERO assumptions: No temporal leakage, endpoints verified via Smart Contracts")
     
     df = pd.DataFrame(results_list)
-    out_path = RESULTS_DIR / "step20_time_aware_localization_metrics.csv"
+    out_path = RESULTS_DIR / "step13_time_aware_localization_metrics.csv"
     df.to_csv(out_path, index=False)
     print(f"\nDetailed results saved to: {out_path}")
 

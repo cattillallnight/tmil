@@ -1,0 +1,50 @@
+{
+  "run_timestamp": "2026-06-06T00:28:20.183292",
+  "total_gt_accounts": 2483,
+  "n_primary": 2075,
+  "n_small_micro": 253,
+  "n_no_data": 155,
+  "primary_threshold_eth": 0.5,
+  "probable_threshold_eth": 5.0,
+  "cex_addresses_used": 436,
+  "tier_breakdown": {
+    "VERY_LARGE": {
+      "n": 281,
+      "confirmed": 22,
+      "probable": 259,
+      "uncertain": 0,
+      "no_cashout": 0,
+      "confirmed_pct": 7.8
+    },
+    "LARGE": {
+      "n": 1009,
+      "confirmed": 58,
+      "probable": 951,
+      "uncertain": 0,
+      "no_cashout": 0,
+      "confirmed_pct": 5.7
+    },
+    "MEDIUM": {
+      "n": 785,
+      "confirmed": 20,
+      "probable": 0,
+      "uncertain": 765,
+      "no_cashout": 0,
+      "confirmed_pct": 2.5
+    }
+  },
+  "primary_confirmed_cex": 100,
+  "primary_probable": 1210,
+  "primary_uncertain": 765,
+  "primary_no_cashout": 0,
+  "primary_conf_rate_strict": 0.0482,
+  "primary_ci_strict_low": 0.0398,
+  "primary_ci_strict_high": 0.0583,
+  "primary_conf_plus_probable": 1310,
+  "primary_conf_prob_rate": 0.6313,
+  "primary_ci_upper_low": 0.6103,
+  "primary_ci_upper_high": 0.6518,
+  "small_micro_n": 253,
+  "small_micro_median_eth": 0.15,
+  "paper_citation": "We performed full automated validation on all 2,075 PRIMARY Ground Truth accounts (Max Outgoing ≥ 0.5 ETH). Cashout destination addresses were cross-referenced against a curated list of 436 documented exchange and mixer addresses (Etherscan Label Cloud + OFAC SDN List). 100 accounts (4.8%) directed funds to confirmed CEX/mixer destinations. An additional 1,210 accounts (58.3%) transferred ≥5.0 ETH to undocumented addresses — a pattern consistent with consolidation to fresh intermediate wallets. Combined (CONFIRMED_CEX + PROBABLE): 1,310/2,075 (63.1%, 95% Wilson CI: [61.0%, 65.2%]). The remaining 765 accounts (36.9%) transferred 0.5–5.0 ETH to undocumented addresses (UNCERTAIN). 253 out-of-domain SMALL_MICRO accounts (<0.5 ETH) are excluded from primary validation and reported separately."
+}

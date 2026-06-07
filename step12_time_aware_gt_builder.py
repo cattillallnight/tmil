@@ -1,7 +1,7 @@
 import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 """
-step22_time_aware_gt_builder.py
+step12_time_aware_gt_builder.py
 ================================
 Builds the ULTIMATE Zero-Assumption Ground Truth by combining:
 1. Cross-Reference (Normal -> Phisher)
@@ -19,7 +19,7 @@ from pathlib import Path
 
 DATA_DIR   = Path(r"C:\Users\Thuy Quyen\Downloads\completeproduce\BERT4ETH\Data")
 TMIL_DIR   = Path(r"C:\Users\Thuy Quyen\Downloads\completeproduce\tmil_eth")
-OUTPUT_PREFIX = TMIL_DIR / "time_aware_ground_truth_"
+OUTPUT_PREFIX = TMIL_DIR / "ground_truth" / "time_aware_ground_truth_"
 
 # Sweeping clustering thresholds for sensitivity analysis
 GAP_DAYS = [1, 3, 7, 14, 30]
@@ -29,7 +29,7 @@ ENDPOINT_LIMIT_SECS = 72 * 3600
 
 def main():
     print("=" * 70)
-    print("Step 22: Time-Aware Cross-Reference & Tornado Endpoint Builder")
+    print("Step 12: Time-Aware Cross-Reference & Tornado Endpoint Builder")
     print("=" * 70)
 
     # ── 1. Load labeled account sets ──────────────────────────────────────
@@ -175,7 +175,7 @@ def main():
 
     # Copy the 30d version back to the standard file for backward compatibility
     import shutil
-    shutil.copy(str(OUTPUT_PREFIX) + "30d.json", TMIL_DIR / "time_aware_ground_truth.json")
+    shutil.copy(str(OUTPUT_PREFIX) + "30d.json", TMIL_DIR / "ground_truth" / "time_aware_ground_truth.json")
 
     print("\n" + "=" * 70)
     print("  TIME-AWARE GROUND TRUTH  ─  SUMMARY")

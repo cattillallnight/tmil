@@ -95,7 +95,7 @@ def evaluate_gt_file(gt_file, model, test_recs, eval_addrs, device):
 
 def main():
     print("="*70)
-    print("TMIL-ETH - Step 24: On-Chain Sensitivity Benchmark")
+    print("TMIL-ETH - Step 15: On-Chain Sensitivity Benchmark")
     print("="*70)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -105,10 +105,10 @@ def main():
     
     # Check what GT files exist
     gap_days = [1, 3, 7, 14, 30]
-    gt_files = {d: TMIL_DIR / f"time_aware_ground_truth_{d}d.json" for d in gap_days}
+    gt_files = {d: TMIL_DIR / "ground_truth" / f"time_aware_ground_truth_{d}d.json" for d in gap_days}
     
     if not all(f.exists() for f in gt_files.values()):
-        print("Error: Missing some Ground Truth files. Run step22_time_aware_gt_builder.py first.")
+        print("Error: Missing some Ground Truth files. Run step12_time_aware_gt_builder.py first.")
         return
         
     print("\n[1] Preparing dataset...")
@@ -159,7 +159,7 @@ def main():
         print(f"  ✓ Gap {d} days -> Hit@1: {h1:.2f}% | IoU: {iou:.2f}%")
         
     df = pd.DataFrame(results)
-    out_path = RESULTS_DIR / "step24_sensitivity_benchmark_results.csv"
+    out_path = RESULTS_DIR / "step15_sensitivity_benchmark_results.csv"
     df.to_csv(out_path, index=False)
     
     print("\n" + "="*70)

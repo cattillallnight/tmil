@@ -68,7 +68,7 @@ def inject_anomalies(hc_original, hc_phisher, n_inject, position, cluster, seed)
 
 def main():
     print("="*70)
-    print("TMIL-ETH - Step 23: Synthetic Injection Benchmark")
+    print("TMIL-ETH - Step 14: Synthetic Injection Benchmark")
     print("="*70)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -218,7 +218,7 @@ def main():
         print(f"  ✓ {name:<30} -> Hit@1: {h1_pct:.2f}% | IoU: {m_iou:.2f}%")
         
     df = pd.DataFrame(results_summary)
-    out_path = RESULTS_DIR / "step23_synthetic_benchmark_results.csv"
+    out_path = RESULTS_DIR / "step14_synthetic_benchmark_results.csv"
     df.to_csv(out_path, index=False)
     
     print("\n" + "="*70)

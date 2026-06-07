@@ -1,0 +1,12 @@
+{
+  "verdict": "NON_SYMMETRIC_BIAS_LIKELY",
+  "n_primary": 98,
+  "n_small": 15,
+  "bias_report": {
+    "tx_count_pval": 0.0013,
+    "tx_count_significant": true,
+    "victim_count_pval": 0.0034,
+    "victim_count_significant": true
+  },
+  "paper_citation": "SMALL/MICRO accounts differ significantly from PRIMARY accounts in transaction structure (p<0.05). Label noise from these N=15 accounts may not be symmetric across baseline configurations. We report model performance separately for accounts with Max Outgoing ≥ 0.5 ETH to ensure unbiased comparison."
+}
