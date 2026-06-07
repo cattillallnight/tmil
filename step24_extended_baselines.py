@@ -181,6 +181,7 @@ def train_eval_dl(model, tr_recs, te_recs, device, epochs=EPOCHS_DL, lr=LR_DL):
             prob = torch.clamp(prob, 1e-7, 1.0 - 1e-7)
             loss = crit(prob, y)
             loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
 
     model.eval()
@@ -189,6 +190,8 @@ def train_eval_dl(model, tr_recs, te_recs, device, epochs=EPOCHS_DL, lr=LR_DL):
         for rec in te_recs:
             x = get_bag_tensor(rec).to(device)
             prob, _ = model(x)
+            if torch.isnan(prob).any():
+                prob = torch.nan_to_num(prob, nan=0.0)
             y_score.append(prob.item())
             y_true.append(rec["label"])
     return np.array(y_true), np.array(y_score)
@@ -217,6 +220,16 @@ def main():
 
     with open(FEATURES_FILE, "rb") as f:
         records = pickle.load(f)
+
+    # Globally normalize the first 4 hand-crafted features to prevent Deep Learning gradients from exploding
+    all_hc = []
+    for r in records:
+        all_hc.append(r["hand_crafted"])
+    all_hc = np.vstack(all_hc)
+    g_mean = np.mean(all_hc, axis=0)
+    g_std  = np.std(all_hc, axis=0) + 1e-8
+    for r in records:
+        r["hand_crafted"] = (r["hand_crafted"] - g_mean) / g_std
 
     ph_all = [r for r in records if r["label"] == 1]
     nm_all = [r for r in records if r["label"] == 0]
