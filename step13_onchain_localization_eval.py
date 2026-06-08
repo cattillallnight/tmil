@@ -94,7 +94,7 @@ def main():
         train_one_epoch(model, loader, loss_fn, opt2, device, 1.0)
         print(f"  Phase 2 Epoch {ep+1}/5 done.")
 
-    print("\n[3] Bắt đầu chấm điểm (Evaluation) dựa trên Human Ground Truth...")
+    print("\n[3] Bắt đầu chấm điểm (Evaluation) dựa trên Time-Aware Algorithmic Ground Truth...")
     
     hit_at_1_count = 0
     hit_at_3_count = 0
@@ -177,7 +177,7 @@ def main():
         
         results_list.append({
             "account": addr,
-            "human_gt_burst": f"{gt_start}-{gt_end}",
+            "auto_gt_burst": f"{gt_start}-{gt_end}",
             "ai_max_attn_idx": best_start + top_k_indices[0],
             "hit_at_1": hit_1,
             "hit_at_3": hit_3,
@@ -213,3 +213,193 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 2: Full Automated Validation (2,483 GT accounts, no API)
+# (formerly step21_full_automated_validation.py)
+# To run: call run_full_automated_validation() below
+# ══════════════════════════════════════════════════════════════════════════════
+
+import math as _math_s21
+from datetime import datetime as _datetime_s21, timezone as _timezone_s21
+
+_DATA_DIR_S21    = Path(r"C:\Users\Thuy Quyen\Downloads\completeproduce\BERT4ETH\Data")
+_GT_FILE_S21     = Path(__file__).parent / "ground_truth" / "time_aware_ground_truth.json"
+_CEX_CSV_S21     = Path(__file__).parent / "results" / "cex_address_sources.csv"
+_VAL_DIR_S21     = Path(__file__).parent / "validation"
+_PRIMARY_THRESH  = 0.5   # ETH
+_PROBABLE_THRESH = 5.0   # ETH
+
+
+def _wilson_ci(k, n, z=1.96):
+    if n == 0: return 0.0, 0.0
+    p = k / n
+    center = (p + z**2 / (2*n)) / (1 + z**2 / n)
+    margin = z * _math_s21.sqrt(p*(1-p)/n + z**2/(4*n**2)) / (1 + z**2/n)
+    return max(0.0, center - margin), min(1.0, center + margin)
+
+
+def run_full_automated_validation():
+    """Full automated validation on all 2,483 GT accounts (no API required)."""
+    import pandas as _pd_s21
+    print("=" * 70)
+    print("Step 13b: Full Automated Validation (2,483 accounts, no API)")
+    print("=" * 70)
+    _VAL_DIR_S21.mkdir(exist_ok=True)
+    if not _CEX_CSV_S21.exists() or not _GT_FILE_S21.exists():
+        print("[SKIP] CEX CSV or GT file not found.")
+        return
+    df_cex = _pd_s21.read_csv(_CEX_CSV_S21)
+    cex_set = set(df_cex["address"].str.lower().str.strip().tolist())
+    cex_label = {row["address"].lower().strip(): row["label"] for _, row in df_cex.iterrows()}
+    with open(_GT_FILE_S21, "r", encoding="utf-8") as f:
+        import json as _j21; gt_data = _j21.load(f)
+    if not _DATA_DIR_S21.exists():
+        print(f"[SKIP] Data directory not found: {_DATA_DIR_S21}")
+        return
+    df_out = _pd_s21.read_csv(_DATA_DIR_S21 / "phisher_transaction_out.csv",
+                              header=None, dtype=str, low_memory=False)
+    df_out.columns = list(range(len(df_out.columns)))
+    df_out[5]  = df_out[5].str.lower().str.strip().fillna("")
+    df_out[6]  = df_out[6].str.lower().str.strip().fillna("")
+    df_out[7]  = _pd_s21.to_numeric(df_out[7], errors="coerce").fillna(0)
+    df_out[11] = _pd_s21.to_numeric(df_out[11], errors="coerce").fillna(0)
+    out_grouped = df_out.groupby(5)
+    records_out = []
+    for acc in gt_data:
+        addr = acc["account_address"].lower().strip()
+        if addr not in out_grouped.groups:
+            records_out.append({"phisher_address": addr, "cashout_value_eth": 0.0,
+                                "tier": "NO_DATA", "stratum": "NO_DATA",
+                                "confirmation_status": "NO_CASHOUT", "cex_label": ""})
+            continue
+        phisher_out = out_grouped.get_group(addr).sort_values(11).reset_index(drop=True)
+        if len(phisher_out) == 0:
+            records_out.append({"phisher_address": addr, "cashout_value_eth": 0.0,
+                                "tier": "NO_DATA", "stratum": "NO_DATA",
+                                "confirmation_status": "NO_CASHOUT", "cex_label": ""})
+            continue
+        max_row = phisher_out.loc[phisher_out[7].idxmax()]
+        val_eth = float(max_row[7]) / 1e18
+        to_addr = str(max_row[6]).lower().strip()
+        tier = ("VERY_LARGE" if val_eth > 50 else "LARGE" if val_eth >= 5
+                else "MEDIUM" if val_eth >= 0.5 else "SMALL" if val_eth >= 0.05 else "MICRO")
+        stratum = "PRIMARY" if val_eth >= _PRIMARY_THRESH else "SMALL_MICRO"
+        if not to_addr or to_addr in cex_set:
+            status = "CONFIRMED_CEX" if to_addr in cex_set else "NO_CASHOUT"
+            clabel = cex_label.get(to_addr, "Known CEX/Mixer") if to_addr in cex_set else ""
+        elif stratum == "SMALL_MICRO":
+            status, clabel = "SMALL_MICRO_EXCLUDED", ""
+        elif val_eth >= _PROBABLE_THRESH:
+            status, clabel = "PROBABLE", ""
+        else:
+            status, clabel = "UNCERTAIN", ""
+        records_out.append({"phisher_address": addr, "cashout_value_eth": round(val_eth, 6),
+                            "cashout_to_address": to_addr, "tier": tier, "stratum": stratum,
+                            "confirmation_status": status, "cex_label": clabel})
+    df_val = _pd_s21.DataFrame(records_out)
+    out_csv = _VAL_DIR_S21 / "full_automated_validation.csv"
+    df_val.to_csv(out_csv, index=False, encoding="utf-8-sig")
+    df_p = df_val[df_val["stratum"] == "PRIMARY"]
+    n_p = len(df_p)
+    n_conf = (df_p["confirmation_status"] == "CONFIRMED_CEX").sum()
+    n_prob = (df_p["confirmation_status"] == "PROBABLE").sum()
+    ci_lo, ci_hi = _wilson_ci(int(n_conf), n_p)
+    print(f"  PRIMARY accounts: {n_p} | CONFIRMED_CEX: {n_conf} ({n_conf/n_p*100:.1f}%)")
+    print(f"  95% Wilson CI (strict): [{ci_lo*100:.1f}%, {ci_hi*100:.1f}%]")
+    print(f"  CONFIRMED+PROBABLE: {n_conf+n_prob} ({(n_conf+n_prob)/n_p*100:.1f}%)")
+    print(f"  Saved: {out_csv}")
+    print("[OK] Full Automated Validation complete.\n")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 3: GT Account Classification Accuracy
+# (formerly step22_gt_classification_accuracy.py)
+# To run: call run_gt_classification_accuracy() below
+# ══════════════════════════════════════════════════════════════════════════════
+
+def run_gt_classification_accuracy():
+    """
+    Evaluates TMIL-ETH on 2,483 Ground Truth phishing accounts.
+    Trains on non-GT phishers, evaluates on GT accounts held out.
+    """
+    import pickle as _pk22
+    import numpy as _np22
+    import pandas as _pd22
+    from sklearn.metrics import roc_auc_score as _roc22, f1_score as _f1_22
+    from sklearn.metrics import precision_score as _prec22, recall_score as _rec22
+    from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
+    from step07_training import AccountWindowDataset, collate_fn, train_one_epoch
+    from torch.utils.data import DataLoader as _DL22
+    import torch as _torch22, torch.optim as _optim22
+
+    print("=" * 70)
+    print("Step 13c: GT Account Classification Accuracy")
+    print("=" * 70)
+    device = _torch22.device("cuda" if _torch22.cuda.is_available() else "cpu")
+    gt_file = Path(__file__).parent / "ground_truth" / "time_aware_ground_truth.json"
+    val_csv = Path(__file__).parent / "validation" / "full_automated_validation.csv"
+    if not gt_file.exists() or not val_csv.exists():
+        print("[SKIP] GT or validation CSV not found.")
+        return
+    with open(gt_file, "r", encoding="utf-8") as f:
+        import json as _j22; gt_addrs = {it["account_address"].lower() for it in _j22.load(f)}
+    df_val22 = _pd22.read_csv(val_csv)
+    df_val22["phisher_address"] = df_val22["phisher_address"].str.lower()
+    tier_map22 = dict(zip(df_val22["phisher_address"], df_val22["tier"]))
+    with open(RESULTS_DIR / "step2_features.pkl", "rb") as f:
+        all_recs = _pk22.load(f)
+    gt_recs   = [r for r in all_recs if r["address"].lower() in gt_addrs and r["label"] == 1]
+    train_ph  = [r for r in all_recs if r["address"].lower() not in gt_addrs and r["label"] == 1]
+    norm_recs = [r for r in all_recs if r["label"] == 0]
+    rng22 = _np22.random.RandomState(42)
+    t_ph  = rng22.choice(train_ph, min(2000, len(train_ph)), replace=False).tolist()
+    t_nm  = rng22.choice(norm_recs, min(8000, len(norm_recs)), replace=False).tolist()
+    train_recs22 = t_ph + t_nm
+    model22 = GatedTMILETH(4, 64).to(device)
+    loss_fn22 = GatedCompoundLoss(lambda1=0.3)
+    ds22 = AccountWindowDataset(train_recs22, W=200)
+    loader22 = _DL22(ds22, batch_size=64, shuffle=True, collate_fn=collate_fn)
+    model22.freeze_bert()
+    opt1_22 = _optim22.AdamW(filter(lambda p: p.requires_grad, model22.parameters()), lr=1e-3)
+    for ep in range(10): train_one_epoch(model22, loader22, loss_fn22, opt1_22, device, 1.0)
+    model22.unfreeze_all()
+    opt2_22 = _optim22.AdamW(model22.parameters(), lr=5e-5)
+    sched22 = _torch22.optim.lr_scheduler.CosineAnnealingLR(opt2_22, T_max=15, eta_min=1e-6)
+    for ep in range(15):
+        train_one_epoch(model22, loader22, loss_fn22, opt2_22, device, 1.0); sched22.step()
+
+    def _pred22(rec):
+        hc = _torch22.tensor(rec["hand_crafted"], dtype=_torch22.float32).to(device)
+        bert = _torch22.tensor(rec["bert_embedding"], dtype=_torch22.float32).to(device)
+        best = -1
+        for start, end in rec["windows"]:
+            n = end - start
+            hw = hc[start:end]
+            if n < 200: hw = _torch22.cat([hw, _torch22.zeros(200-n, 4, device=device)])
+            else: hw = hw[:200]
+            be = bert.unsqueeze(0).expand(200, -1)
+            with _torch22.no_grad():
+                p, _ = model22(hw.unsqueeze(0), be.unsqueeze(0))
+            if p.item() > best: best = p.item()
+        return best
+
+    model22.eval()
+    gt_scores22   = [_pred22(r) for r in gt_recs]
+    test_normals22 = rng22.choice(norm_recs, min(len(gt_recs), len(norm_recs)), replace=False).tolist()
+    norm_scores22  = [_pred22(r) for r in test_normals22]
+    y_true22 = [1]*len(gt_scores22) + [0]*len(norm_scores22)
+    y_score22 = gt_scores22 + norm_scores22
+    y_pred22  = [1 if s > 0.5 else 0 for s in y_score22]
+    auc22 = _roc22(y_true22, y_score22)
+    print(f"  GT Detected @0.5: {_np22.mean(_np22.array(gt_scores22)>0.5)*100:.1f}%  "
+          f"AUC={auc22:.4f}  F1={_f1_22(y_true22, y_pred22):.4f}  "
+          f"Prec={_prec22(y_true22, y_pred22, zero_division=0):.4f}")
+    import json as _j22b
+    out22 = RESULTS_DIR / "step22_gt_classification_accuracy.json"
+    with open(out22, "w") as f:
+        _j22b.dump({"gt_n": len(gt_scores22), "auc": round(auc22, 4),
+                    "gt_detected_pct": round(float(_np22.mean(_np22.array(gt_scores22)>0.5)*100), 2)}, f, indent=2)
+    print(f"  Saved: {out22}")
+    print("[OK] GT Classification Accuracy complete.\n")

@@ -382,3 +382,126 @@ if __name__ == "__main__":
     # Fix unresolved name — path_in used inside _read_file closure
     path_in = PHISHER_TX_IN  # noqa (referenced in load_txs_for_accounts print)
     main()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 2: CEX Address Source Documentation + Symmetric Bias Check
+# (formerly step20_cex_source_doc_and_bias_check.py)
+# ══════════════════════════════════════════════════════════════════════════════
+
+import requests as _requests_s20
+import time as _time_s20
+from scipy import stats as _scipy_stats_s20
+
+_RESULTS_DIR_S20 = Path(__file__).parent / "results"
+_GT_FILE_S20     = Path(__file__).parent / "ground_truth" / "time_aware_ground_truth.json"
+_SHEET_CSV_S20   = _RESULTS_DIR_S20 / "step17_annotation_sheet.csv"
+_OUT_BIAS_S20    = _RESULTS_DIR_S20 / "step20_bias_check.json"
+
+_API_KEY_S20  = "QQD2RT4RGBVCCIJFH1ETZZWBJR55AU1YYV"
+_BASE_URL_S20 = "https://api.etherscan.io/api"
+
+DOCUMENTED_CEX = [
+    ("0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be", "Binance: Hot Wallet",       "Etherscan Label Cloud", "etherscan.io/address/0x3f5c..."),
+    ("0xd551234ae421e3bcba99a0da6d736074f22192ff", "Binance: Hot Wallet 2",     "Etherscan Label Cloud", "etherscan.io/address/0xd551..."),
+    ("0x564286362092d8e7936f0549571a803b203aaced", "Binance: Hot Wallet 3",     "Etherscan Label Cloud", "etherscan.io/address/0x5642..."),
+    ("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8", "Binance: Cold Wallet",      "Etherscan Label Cloud", "etherscan.io/address/0xbe0e..."),
+    ("0xf977814e90da44bfa03b6295a0616a897441acec", "Binance: Cold Wallet 8",    "Etherscan Label Cloud", "etherscan.io/address/0xf977..."),
+    ("0xab5c66752a9e8167967685f1450532fb96d5d24f", "Huobi: Hot Wallet",         "Etherscan Label Cloud", "etherscan.io/address/0xab5c..."),
+    ("0x6748f50f686bfbca6fe8ad62b22228b87f31ff2b", "Huobi: Hot Wallet 2",       "Etherscan Label Cloud", "etherscan.io/address/0x6748..."),
+    ("0xfdb16996831753d5331ff813c29a93c76834a0ad", "Huobi: Hot Wallet 3",       "Etherscan Label Cloud", "etherscan.io/address/0xfdb1..."),
+    ("0x6cc5f688a315f3dc28a7781717a9a798a59fda7b", "OKX: Hot Wallet",           "Etherscan Label Cloud", "etherscan.io/address/0x6cc5..."),
+    ("0x236f9f97e0e62388479bf9e5ba4889e46b0273c3", "OKX: 2",                    "Etherscan Label Cloud", "etherscan.io/address/0x236f..."),
+    ("0xa090e606e30bd747d4e6245a1517ebe430f0057e", "Coinbase: Hot Wallet",      "Etherscan Label Cloud", "etherscan.io/address/0xa090..."),
+    ("0x71660c4005ba85c37ccec55d0c4493e66fe775d3", "Coinbase: Hot Wallet 2",    "Etherscan Label Cloud", "etherscan.io/address/0x7166..."),
+    ("0x503828976d22510aad0201ac7ec88293211d23da", "Coinbase: Hot Wallet 3",    "Etherscan Label Cloud", "etherscan.io/address/0x5038..."),
+    ("0x0d0707963952f2fba59dd06f2b425ace40b492fe", "Gate.io: Hot Wallet",       "Etherscan Label Cloud", "etherscan.io/address/0x0d07..."),
+    ("0x46340b20830761efd32832a74d7169b29feb9758", "Crypto.com",                "Etherscan Label Cloud", "etherscan.io/address/0x4634..."),
+    ("0xd24400ae8bfebb18ca49be86258a3c749cf46853", "Gemini: Hot Wallet",        "Etherscan Label Cloud", "etherscan.io/address/0xd244..."),
+    ("0x742d35cc6634c0532925a3b844bc454e4438f44e", "Bitfinex: Hot Wallet",      "Etherscan Label Cloud", "etherscan.io/address/0x742d..."),
+    ("0xe853c56864a2ebe4576a807d26fdc4a0ada51919", "Kraken: Hot Wallet",        "Etherscan Label Cloud", "etherscan.io/address/0xe853..."),
+    ("0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "Uniswap V2: Router",        "Etherscan Verified Contract", "etherscan.io/address/0x7a25..."),
+    ("0xe592427a0aece92de3edee1f18e0157c05861564", "Uniswap V3: Router",        "Etherscan Verified Contract", "etherscan.io/address/0xe592..."),
+    ("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "WETH: Wrapped Ether",       "Etherscan Verified Contract + Uniswap Docs", "etherscan.io/address/0xc02a..."),
+    ("0x881d40237659c251811cec9c364ef91dc08d300c", "MetaMask: Swap Router",     "Etherscan Label Cloud", "etherscan.io/address/0x881d..."),
+    ("0x910cbd523d972eb0a6f4cae4618ad62622b39dbf", "Tornado Cash: 1 ETH Pool",  "OFAC SDN List 2022-08-08 + Etherscan", "home.treasury.gov/..."),
+    ("0xa160cdab225685da1d56aa342ad8841c3b53f291", "Tornado Cash: 10 ETH Pool", "OFAC SDN List 2022-08-08 + Etherscan", "home.treasury.gov/..."),
+    ("0xd4b88df4d29f5cedd6857912842cff3b20c8cfa3", "Tornado Cash: 100 ETH Pool","OFAC SDN List 2022-08-08 + Etherscan", "home.treasury.gov/..."),
+    ("0xfd8610d20aa15b7b2e3be39b396a1bc3516c7144", "Tornado Cash: 0.1 ETH Pool","OFAC SDN List 2022-08-08 + Etherscan", "home.treasury.gov/..."),
+]
+
+
+def run_cex_source_doc_and_bias_check():
+    """
+    Part A: Document CEX address sources (generates cex_address_sources.csv).
+    Part B: Symmetric bias check for SMALL/MICRO vs PRIMARY accounts.
+    Saves: results/step20_bias_check.json
+    """
+    import pandas as _pd_s20
+    import numpy as _np_s20
+
+    print("=" * 70)
+    print("Step 1b: CEX Address Source Documentation + Bias Check")
+    print("=" * 70)
+
+    # Part A
+    print("\n[A] Documenting CEX Address Sources...")
+    out_cex_csv = _RESULTS_DIR_S20 / "cex_address_sources.csv"
+    records = []
+    for addr, label, source, ref in DOCUMENTED_CEX:
+        # Quick API verify (optional, may timeout)
+        try:
+            r = _requests_s20.get(_BASE_URL_S20, params={
+                "module": "contract", "action": "getsourcecode",
+                "address": addr, "apikey": _API_KEY_S20}, timeout=5)
+            data = r.json()
+            cname = data["result"][0].get("ContractName", "") if data.get("status") == "1" else ""
+            ev = f"Verified Contract: {cname}" if cname else "N/A"
+        except Exception:
+            ev = "N/A"
+        records.append({"address": addr, "label": label, "documented_source": source,
+                        "reference": ref, "etherscan_verify": ev,
+                        "etherscan_link": f"https://etherscan.io/address/{addr}"})
+        _time_s20.sleep(0.22)
+
+    _pd_s20.DataFrame(records).to_csv(out_cex_csv, index=False, encoding="utf-8-sig")
+    print(f"  Saved: {out_cex_csv} ({len(records)} addresses)")
+
+    # Part B
+    if not _SHEET_CSV_S20.exists() or not _GT_FILE_S20.exists():
+        print("[SKIP] Annotation sheet or GT file not found for bias check.")
+        return
+    df_sheet = _pd_s20.read_csv(_SHEET_CSV_S20)
+    with open(_GT_FILE_S20, "r") as f:
+        import json as _js20; gt_map = {r["account_address"].lower(): r for r in _js20.load(f)}
+
+    df_primary = df_sheet[df_sheet["cashout_value_eth"] >= 0.5].copy()
+    df_small   = df_sheet[df_sheet["cashout_value_eth"] <  0.5].copy()
+
+    def _get_features(df_sub):
+        tx_c, vic_c = [], []
+        for _, row in df_sub.iterrows():
+            addr = str(row["account_address"]).lower()
+            if addr in gt_map:
+                tx_c.append(gt_map[addr].get("total_txs", 0))
+                vic_c.append(gt_map[addr].get("active_victims_in_cluster", 0))
+        return tx_c, vic_c
+
+    prim_txs, prim_vic = _get_features(df_primary)
+    small_txs, small_vic = _get_features(df_small)
+    bias_report = {}
+    for name, a, b in [("tx_count", prim_txs, small_txs), ("victim_count", prim_vic, small_vic)]:
+        if a and b:
+            u, p = _scipy_stats_s20.mannwhitneyu(a, b, alternative="two-sided")
+            bias_report[f"{name}_pval"] = round(p, 4)
+            bias_report[f"{name}_significant"] = bool(p < 0.05)
+            sig = "SIGNIFICANT" if p < 0.05 else "NOT significant"
+            print(f"  {name}: Mann-Whitney p={p:.4f} → {sig}")
+
+    any_sig = any(bias_report.get(k, False) for k in ["tx_count_significant", "victim_count_significant"])
+    verdict = "NON_SYMMETRIC_BIAS_LIKELY" if any_sig else "APPROXIMATELY_SYMMETRIC"
+    result = {"verdict": verdict, "n_primary": len(df_primary), "n_small": len(df_small), "bias_report": bias_report}
+    with open(_OUT_BIAS_S20, "w", encoding="utf-8") as f:
+        import json as _j20; _j20.dump(result, f, indent=2, ensure_ascii=False)
+    print(f"  Verdict: {verdict} | Saved: {_OUT_BIAS_S20}")
+    print("[OK] CEX Source Doc + Bias Check complete.\n")

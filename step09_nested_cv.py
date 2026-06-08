@@ -213,3 +213,121 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 2: GT-Targeted Nested CV
+# (formerly step23_gt_targeted_cv.py)
+# Usage: python -c "from step09_nested_cv import run_gt_targeted_cv; run_gt_targeted_cv()"
+# ══════════════════════════════════════════════════════════════════════════════
+
+def run_gt_targeted_cv():
+    """
+    Nested 5-Fold CV variant that explicitly tracks Ground Truth (GT) accounts.
+    Reports per-tier detection rates in addition to overall classification metrics.
+    Saves: results/step23_gt_targeted_cv.json
+    """
+    import pickle as _pk23, pandas as _pd23
+    from sklearn.model_selection import StratifiedKFold as _SKF23
+    from sklearn.metrics import roc_auc_score as _auc23, f1_score as _f1_23
+    from sklearn.metrics import precision_score as _prec23, recall_score as _rec23
+    from sklearn.metrics import roc_curve as _roc_curve23
+    import torch as _torch23, torch.optim as _optim23
+    from torch.utils.data import DataLoader as _DL23
+    from step05_model_architecture import GatedTMILETH, GatedCompoundLoss
+    from step07_training import AccountWindowDataset, collate_fn, train_one_epoch
+
+    GT_FILE23  = Path(__file__).parent / "ground_truth" / "time_aware_ground_truth.json"
+    VAL_CSV23  = Path(__file__).parent / "validation" / "full_automated_validation.csv"
+
+    print("=" * 70)
+    print("Step 9b: GT-Targeted Nested CV")
+    print("=" * 70)
+    device = _torch23.device("cuda" if _torch23.cuda.is_available() else "cpu")
+    if not GT_FILE23.exists():
+        print("[SKIP] GT file not found."); return
+
+    with open(GT_FILE23, "r", encoding="utf-8") as f:
+        import json as _j23; gt_data = _j23.load(f)
+    gt_addrs23 = {item["account_address"].lower() for item in gt_data}
+
+    with open(RESULTS_DIR / "step2_features.pkl", "rb") as f:
+        records23 = _pk23.load(f)
+
+    ph_all = [r for r in records23 if r["label"] == 1]
+    nm_all = [r for r in records23 if r["label"] == 0]
+    for r in ph_all: r["is_gt"] = (r["address"].lower() in gt_addrs23)
+
+    rng23 = _np.random.RandomState(42)
+    n_ph = min(4361, len(ph_all))
+    n_nm = min(4 * n_ph, len(nm_all))
+    ph_sel = [ph_all[i] for i in rng23.choice(len(ph_all), n_ph, replace=False)]
+    nm_sel = [nm_all[i] for i in rng23.choice(len(nm_all), n_nm, replace=False)]
+    all_r23 = ph_sel + nm_sel
+    all_l23 = _np.array([r["label"] for r in all_r23])
+    all_isgt = _np.array([1 if r.get("is_gt") else 0 for r in all_r23])
+    print(f"Dataset: {n_ph} phishing ({sum(1 for r in ph_sel if r['is_gt'])} GT) + {n_nm} normal")
+
+    outer23 = _SKF23(5, shuffle=True, random_state=42)
+    fold_results23 = []
+
+    for fi, (tri, tei) in enumerate(outer23.split(_np.zeros(len(all_r23)), all_l23)):
+        print(f"\n[Fold {fi+1}/5]")
+        tr_recs23 = [all_r23[i] for i in tri]
+        te_recs23 = [all_r23[i] for i in tei]
+        te_lbs23  = all_l23[tei]
+        te_isgt23 = all_isgt[tei]
+
+        model23 = GatedTMILETH(4, 64).to(device)
+        loss_fn23 = GatedCompoundLoss(lambda1=0.3)
+        ds23 = AccountWindowDataset(tr_recs23, W=200)
+        ld23 = _DL23(ds23, 64, shuffle=True, collate_fn=collate_fn, num_workers=0)
+        model23.freeze_bert()
+        o1 = _optim23.AdamW(filter(lambda p: p.requires_grad, model23.parameters()), lr=1e-3)
+        for _ in range(15): train_one_epoch(model23, ld23, loss_fn23, o1, device, 1.0)
+        model23.unfreeze_all()
+        o2 = _optim23.AdamW(model23.parameters(), lr=5e-5)
+        sch = _torch23.optim.lr_scheduler.CosineAnnealingLR(o2, T_max=20, eta_min=1e-6)
+        for _ in range(20):
+            train_one_epoch(model23, ld23, loss_fn23, o2, device, 1.0); sch.step()
+
+        model23.eval()
+        scores23 = []
+        with _torch23.no_grad():
+            for rec in te_recs23:
+                hc = _torch23.tensor(rec["hand_crafted"], dtype=_torch23.float32).to(device)
+                bert = _torch23.tensor(rec["bert_embedding"], dtype=_torch23.float32).to(device)
+                best = 0.0
+                for st, en in rec["windows"]:
+                    n = en - st; hw = hc[st:en]
+                    if n < 200: hw = _torch23.cat([hw, _torch23.zeros(200-n, 4, device=device)])
+                    else: hw = hw[:200]
+                    be = bert.unsqueeze(0).expand(200, -1)
+                    p, _ = model23(hw.unsqueeze(0), be.unsqueeze(0))
+                    if p.item() > best: best = p.item()
+                scores23.append(best)
+        scores23 = _np.array(scores23)
+
+        try:
+            fold_auc = float(_auc23(te_lbs23, scores23))
+        except: fold_auc = 0.0
+        b23 = (scores23 >= 0.5).astype(int)
+        gt_mask23 = (te_lbs23 == 1) & (te_isgt23 == 1)
+        gt_det = float(_np.mean(scores23[gt_mask23] > 0.5) * 100) if gt_mask23.sum() > 0 else 0.0
+        print(f"  AUC={fold_auc:.4f}  F1={_f1_23(te_lbs23, b23):.4f}  "
+              f"GT_detected={gt_det:.1f}% (N={gt_mask23.sum()})")
+        fold_results23.append({"fold": fi+1, "auc": round(fold_auc, 4),
+                               "f1": round(float(_f1_23(te_lbs23, b23)), 4),
+                               "gt_detected_pct": round(gt_det, 2)})
+
+    mean_auc23 = float(_np.mean([r["auc"] for r in fold_results23]))
+    mean_f1_23 = float(_np.mean([r["f1"] for r in fold_results23]))
+    print(f"\n  FINAL: AUC={mean_auc23:.4f} ± {_np.std([r['auc'] for r in fold_results23]):.4f}  "
+          f"F1={mean_f1_23:.4f}")
+    out23 = RESULTS_DIR / "step23_gt_targeted_cv.json"
+    with open(out23, "w", encoding="utf-8") as f:
+        import json as _j23b; _j23b.dump({"overall": {"auc_mean": round(mean_auc23, 4),
+                                                       "f1_mean": round(mean_f1_23, 4)},
+                                          "per_fold": fold_results23}, f, indent=2)
+    print(f"  Saved: {out23}")
+    print("[OK] GT-Targeted CV complete.\n")
