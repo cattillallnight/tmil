@@ -64,7 +64,7 @@ def get_no_window_tensor(rec, apply_global_norm=False, g_mean=None, g_std=None):
 class AblationGatedAttention(nn.Module):
     def __init__(self, input_dim=68, hidden_dim=64):
         super().__init__()
-        self.feature_proj = nn.Sequential(nn.Linear(input_dim, hidden_dim), nn.ReLU())
+        self.feature_proj = nn.Sequential(nn.LayerNorm(input_dim), nn.Linear(input_dim, hidden_dim), nn.ReLU())
         self.V = nn.Linear(hidden_dim, hidden_dim)
         self.U = nn.Linear(hidden_dim, hidden_dim)
         self.w = nn.Linear(hidden_dim, 1)

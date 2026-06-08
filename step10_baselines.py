@@ -306,19 +306,19 @@ def _get_bag_tensor_s24(rec):
 class _MeanMIL_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
-        self.net = _nn_s24.Sequential(_nn_s24.Linear(68, 64), _nn_s24.ReLU(), _nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
+        self.net = _nn_s24.Sequential(_nn_s24.LayerNorm(68), _nn_s24.Linear(68, 64), _nn_s24.ReLU(), _nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
     def forward(self, x): return self.net(x.mean(0, keepdim=True)), None
 
 class _MaxMIL_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
-        self.net = _nn_s24.Sequential(_nn_s24.Linear(68, 64), _nn_s24.ReLU(), _nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
+        self.net = _nn_s24.Sequential(_nn_s24.LayerNorm(68), _nn_s24.Linear(68, 64), _nn_s24.ReLU(), _nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
     def forward(self, x): return self.net(x.max(0, keepdim=True).values), None
 
 class _ABMIL_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
-        self.feat = _nn_s24.Sequential(_nn_s24.Linear(68, 64), _nn_s24.ReLU())
+        self.feat = _nn_s24.Sequential(_nn_s24.LayerNorm(68), _nn_s24.Linear(68, 64), _nn_s24.ReLU())
         self.attn = _nn_s24.Sequential(_nn_s24.Linear(64, 32), _nn_s24.Tanh(), _nn_s24.Linear(32, 1))
         self.clf  = _nn_s24.Sequential(_nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
     def forward(self, x):
@@ -328,30 +328,33 @@ class _ABMIL_s24(_nn_s24.Module):
 class _BiLSTM_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
+        self.ln = _nn_s24.LayerNorm(68)
         self.lstm = _nn_s24.LSTM(68, 64, num_layers=1, batch_first=True, bidirectional=True)
         self.clf  = _nn_s24.Sequential(_nn_s24.Linear(128, 1), _nn_s24.Sigmoid())
     def forward(self, x):
-        _, (hn, _) = self.lstm(x.unsqueeze(0))
+        _, (hn, _) = self.lstm(self.ln(x).unsqueeze(0))
         return self.clf(_torch_s24.cat([hn[0], hn[1]], dim=-1)), None
 
 class _GRUModel_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
+        self.ln = _nn_s24.LayerNorm(68)
         self.gru = _nn_s24.GRU(68, 64, num_layers=2, batch_first=True, dropout=0.1)
         self.clf = _nn_s24.Sequential(_nn_s24.Linear(64, 32), _nn_s24.ReLU(), _nn_s24.Linear(32, 1), _nn_s24.Sigmoid())
     def forward(self, x):
-        _, hn = self.gru(x.unsqueeze(0)); return self.clf(hn[-1]), None
+        _, hn = self.gru(self.ln(x).unsqueeze(0)); return self.clf(hn[-1]), None
 
 class _VanillaTransformer_s24(_nn_s24.Module):
     def __init__(self):
         super().__init__()
+        self.ln = _nn_s24.LayerNorm(68)
         self.proj = _nn_s24.Linear(68, 64)
         enc_l = _nn_s24.TransformerEncoderLayer(d_model=64, nhead=4, batch_first=True, dropout=0.1)
         self.enc  = _nn_s24.TransformerEncoder(enc_l, num_layers=2)
         self.cls  = _nn_s24.Parameter(_torch_s24.zeros(1, 1, 64))
         self.clf  = _nn_s24.Sequential(_nn_s24.Linear(64, 1), _nn_s24.Sigmoid())
     def forward(self, x):
-        x = self.proj(x.unsqueeze(0))
+        x = self.proj(self.ln(x).unsqueeze(0))
         x = _torch_s24.cat([self.cls.expand(1, 1, -1), x], dim=1)
         return self.clf(self.enc(x)[:, 0, :]), None
 
