@@ -291,14 +291,18 @@ def _get_mean_features_s24(recs):
     return _np_s24.array(X, dtype=_np_s24.float32), _np_s24.array(Y)
 
 
-def _get_bag_tensor_s24(rec):
-    hc, bert, wins = rec["hand_crafted"], rec["bert_embedding"], rec["windows"]
+def _get_bag_tensor_s24(rec, g_mean=None, g_std=None):
+    hc, bert, wins = _np_s24.copy(rec["hand_crafted"]), rec["bert_embedding"], rec["windows"]
+    if g_mean is not None and g_std is not None:
+        hc = (hc - g_mean) / (g_std + 1e-9)
     feats = []
     for s, e in wins:
         hw = hc[s:e]; n = hw.shape[0]
         if n < _W_S24: hw = _np_s24.vstack([hw, _np_s24.zeros((_W_S24-n, 4), dtype=_np_s24.float32)])
         else: hw = hw[:_W_S24]
         feats.append(_np_s24.concatenate([_np_s24.mean(hw, axis=0), bert]))
+    if len(feats) == 0:
+        feats.append(_np_s24.zeros(68))
     t = _torch_s24.tensor(_np_s24.array(feats, dtype=_np_s24.float32))
     return _torch_s24.nan_to_num(t, nan=0.0, posinf=0.0, neginf=0.0)
 
@@ -367,30 +371,49 @@ class _BERT4ETH_Only_s24(_nn_s24.Module):
 
 
 def _train_eval_dl_s24(model, tr_recs, te_recs, device):
+    all_hc = []
+    for r in tr_recs:
+        if len(r["hand_crafted"]) > 0:
+            all_hc.append(r["hand_crafted"])
+    if len(all_hc) > 0:
+        all_hc_cat = _np_s24.vstack(all_hc)
+        g_mean = _np_s24.mean(all_hc_cat, axis=0)
+        g_std = _np_s24.std(all_hc_cat, axis=0)
+    else:
+        g_mean, g_std = None, None
+
     model = model.to(device)
-    opt   = _optim_s24.AdamW(model.parameters(), lr=_LR_DL_S24, weight_decay=1e-4)
-    model.train()
-    for _ in range(_EPOCHS_DL_S24):
+    opt = _optim_s24.AdamW(model.parameters(), lr=_LR_DL_S24, weight_decay=1e-4)
+    pos_weight = 4.0
+    
+    for ep in range(_EPOCHS_DL_S24):
+        model.train()
         opt.zero_grad()
         for i, rec in enumerate(tr_recs):
-    opt = _optim_s24.AdamW(model.parameters(), lr=5e-4)
-    pos_weight = 4.0
-    for ep in range(20):
-        model.train()
-        for r in tr_recs:
-            x = _get_bag_tensor_s24(r, g_mean, g_std).to(device)
-            y = _torch_s24.tensor([[r["label"]]], dtype=_torch_s24.float32).to(device)
+            x = _get_bag_tensor_s24(rec, g_mean, g_std).to(device)
+            y = _torch_s24.tensor([[float(rec["label"])]], dtype=_torch_s24.float32).to(device)
             p, _ = model(x)
-            loss = - (y * _torch_s24.log(p + 1e-8) * pos_weight + (1 - y) * _torch_s24.log(1 - p + 1e-8))
-            opt.zero_grad(); loss.backward(); opt.step()
+            p = _torch_s24.clamp(p, 1e-7, 1.0 - 1e-7)
+            loss = - (y * _torch_s24.log(p) * pos_weight + (1 - y) * _torch_s24.log(1 - p))
+            loss = loss.mean() / 128.0
+            loss.backward()
+            
+            if (i+1) % 128 == 0 or (i+1) == len(tr_recs):
+                _nn_s24.utils.clip_grad_norm_(model.parameters(), 1.0)
+                opt.step()
+                opt.zero_grad()
+                
     model.eval()
     y_true, y_score = [], []
     with _torch_s24.no_grad():
         for r in te_recs:
             x = _get_bag_tensor_s24(r, g_mean, g_std).to(device)
             p, _ = model(x)
-            y_true.append(r["label"]); y_score.append(p.item())
-    return y_true, y_score
+            if _torch_s24.isnan(p).any(): p = _torch_s24.nan_to_num(p, nan=0.0)
+            y_true.append(r["label"])
+            y_score.append(p.item())
+            
+    return _np_s24.array(y_true), _np_s24.array(y_score)
 
 def _get_ml_data_s24(recs):
     X, y = [], []
