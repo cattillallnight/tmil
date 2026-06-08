@@ -488,3 +488,7 @@ def run_extended_baselines():
         _json_s24.dump(final_out_s24, f, indent=2)
     print(f"\nSaved: {out_s24}")
     print("[OK] Extended Baseline Comparison complete.\n")
+
+if __name__ == "__main__":
+    run_extended_baselines()
+
