@@ -15,8 +15,8 @@ Optimizer: AdamW, weight_decay=1e-4, grad_clip=1.0
 Batch size: 32 accounts
 
 Saves: results/checkpoints/tmil_eth_final.pt
-       results/step7_training_curves.json
-       results/step7_training_curves.png
+       results/figures/step07_training_curves.json
+       results/figures/step07_training_curves.png
 """
 
 import sys
@@ -44,7 +44,7 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 CKPT_DIR = RESULTS_DIR / "checkpoints"
 CKPT_DIR.mkdir(parents=True, exist_ok=True)
 
-FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
+FEATURES_FILE = RESULTS_DIR / "step02_features.pkl"
 
 # ─── Hyperparameters ─────────────────────────────────────────────────────────
 SEED         = 42
@@ -236,7 +236,7 @@ def main():
     # Model + loss
     model = GatedTMILETH(hand_crafted_dim=HAND_DIM, bert_dim=BERT_DIM,
                     proj_dim=64, attn_hidden=128, mlp_hidden=256).to(device)
-    loss_fn = GatedCompoundLoss(lambda1=LAMBDA1)
+    loss_fn = GatedCompoundLoss(lambda1=LAMBDA1, lambda2=LAMBDA2)
 
     print(f"\nModel parameters: {sum(p.numel() for p in model.parameters()):,}")
 
@@ -342,13 +342,13 @@ def main():
     axes[1].legend()
 
     plt.tight_layout()
-    curve_path = RESULTS_DIR / "step7_training_curves.png"
+    curve_path = RESULTS_DIR / "step07_training_curves.png"
     plt.savefig(curve_path, dpi=150, bbox_inches="tight")
     plt.close()
     print(f"\nTraining curves saved: {curve_path.name}")
 
     # Save history
-    hist_path = RESULTS_DIR / "step7_training_curves.json"
+    hist_path = RESULTS_DIR / "step07_training_curves.json"
     training_summary = {
         "config": {
             "phase1_epochs": PHASE1_EPOCHS,

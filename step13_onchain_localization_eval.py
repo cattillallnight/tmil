@@ -25,7 +25,7 @@ def main():
     print("="*70)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    features_file = RESULTS_DIR / "step2_features.pkl"
+    features_file = RESULTS_DIR / "step02_features.pkl"
     # === THE ULTIMATE GT: Time-Aware Cross-Reference & Tornado Cash ===
     # Built by step12_time_aware_gt_builder.py
     # 1. Sender IN Normal AND Receiver IN Phisher
@@ -61,38 +61,41 @@ def main():
             else:
                 train_pool_norm.append(r)
                 
-    # Lấy 1 lượng nhỏ (ví dụ 100 phish, 400 normal) để train thật nhanh mô hình 
-    # (Vì mục đích chỉ là lấy Attention Score, không cần mô hình hoàn hảo 100%)
-    rng = np.random.RandomState(42)
-    n_train_phish = min(100, len(train_pool_phish))
-    n_train_norm = min(400, len(train_pool_norm))
-    
-    train_recs = rng.choice(train_pool_phish, n_train_phish, replace=False).tolist() + \
-                 rng.choice(train_pool_norm, n_train_norm, replace=False).tolist()
-                 
-    print(f"  Tập Train cách ly (Isolated Train Set): {len(train_recs)} accounts.")
-    print(f"  Tập Test ẩn (Hidden Eval Set)         : {len(test_recs)} accounts.")
-    
-    print("\n[2] Training model (10 epochs, GPU-accelerated) to extract Attention scores...")
+    print(f"  Hidden Eval Set: {len(test_recs)} accounts (GT-labeled, excluded from training).")
+
+    print("\n[2] Loading production model checkpoint from Step 07...")
+    CKPT_PATH = RESULTS_DIR / "checkpoints" / "tmil_eth_final.pt"
     model = GatedTMILETH(4, 64).to(device)
-    loss_fn = GatedCompoundLoss(lambda1=0.3)
-    
-    ds = AccountWindowDataset(train_recs, W=200)
-    loader = DataLoader(ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
-    
-    # Phase 1: Freeze BERT, only train MIL head (5 epochs on GPU)
-    model.freeze_bert()
-    opt1 = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
-    for ep in range(5):
-        train_one_epoch(model, loader, loss_fn, opt1, device, 1.0)
-        print(f"  Phase 1 Epoch {ep+1}/5 done.")
-        
-    # Phase 2: Unfreeze all, fine-tune end-to-end (5 epochs on GPU)
-    model.unfreeze_all()
-    opt2 = optim.AdamW(model.parameters(), lr=1e-4)
-    for ep in range(5):
-        train_one_epoch(model, loader, loss_fn, opt2, device, 1.0)
-        print(f"  Phase 2 Epoch {ep+1}/5 done.")
+
+    if CKPT_PATH.exists():
+        model.load_state_dict(torch.load(CKPT_PATH, map_location=device))
+        model.eval()
+        print(f"  [OK] Loaded checkpoint: {CKPT_PATH}")
+        print(f"  [OK] This is the SAME model used in Step 09 classification evaluation.")
+    else:
+        # Fallback: train a fresh model if checkpoint is missing
+        print(f"  [WARNING] Checkpoint not found at {CKPT_PATH}.")
+        print(f"  [WARNING] Falling back to isolated training (100 phish + 400 normal, 10 epochs).")
+        print(f"  [WARNING] Run step07_training.py first to generate the full production checkpoint.")
+        rng = np.random.RandomState(42)
+        n_train_phish = min(100, len(train_pool_phish))
+        n_train_norm = min(400, len(train_pool_norm))
+        train_recs = rng.choice(train_pool_phish, n_train_phish, replace=False).tolist() + \
+                     rng.choice(train_pool_norm, n_train_norm, replace=False).tolist()
+        loss_fn = GatedCompoundLoss(lambda1=0.3, lambda2=0.2)
+        ds = AccountWindowDataset(train_recs, W=200)
+        loader = DataLoader(ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
+        model.freeze_bert()
+        opt1 = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
+        for ep in range(5):
+            train_one_epoch(model, loader, loss_fn, opt1, device, 1.0)
+            print(f"  Fallback Phase 1 Epoch {ep+1}/5 done.")
+        model.unfreeze_all()
+        opt2 = optim.AdamW(model.parameters(), lr=1e-4)
+        for ep in range(5):
+            train_one_epoch(model, loader, loss_fn, opt2, device, 1.0)
+            print(f"  Fallback Phase 2 Epoch {ep+1}/5 done.")
+        model.eval()
 
     print("\n[3] Bắt đầu chấm điểm (Evaluation) dựa trên Time-Aware Algorithmic Ground Truth...")
     
@@ -348,7 +351,7 @@ def run_gt_classification_accuracy():
     df_val22 = _pd22.read_csv(val_csv)
     df_val22["phisher_address"] = df_val22["phisher_address"].str.lower()
     tier_map22 = dict(zip(df_val22["phisher_address"], df_val22["tier"]))
-    with open(RESULTS_DIR / "step2_features.pkl", "rb") as f:
+    with open(RESULTS_DIR / "step02_features.pkl", "rb") as f:
         all_recs = _pk22.load(f)
     gt_recs   = [r for r in all_recs if r["address"].lower() in gt_addrs and r["label"] == 1]
     train_ph  = [r for r in all_recs if r["address"].lower() not in gt_addrs and r["label"] == 1]

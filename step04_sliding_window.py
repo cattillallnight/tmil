@@ -6,7 +6,7 @@ Demonstrates and validates the sliding window construction protocol (§4.3):
   Coverage guarantee: each tx appears in at most 4 consecutive windows.
   Šidák FPR correction: tau_eff(K) = 1 - (1 - tau_base)^(1/K)
 
-Saves: results/step4_windows_stats.json
+Saves: results/figures/step04_windows_stats.json
 """
 
 import sys
@@ -24,7 +24,7 @@ from tqdm import tqdm
 from utils import RESULTS_DIR, sliding_windows, sidak_threshold
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
+FEATURES_FILE = RESULTS_DIR / "step02_features.pkl"
 
 W, S = 200, 50
 
@@ -148,7 +148,7 @@ def main():
         print(f"  Training cost ratio vs single-window: ~{stats['n_windows']['mean']:.1f}x")
 
         # Plot
-        plot_path = RESULTS_DIR / "step4_window_distribution.png"
+        plot_path = RESULTS_DIR / "step04_window_distribution.png"
         plot_window_distribution(records, plot_path)
     else:
         print(f"\n[3] Note: {FEATURES_FILE} not found. Run Step 2 first for full stats.")
@@ -187,7 +187,7 @@ def main():
     if stats:
         output["account_window_stats"] = stats
 
-    out_path = RESULTS_DIR / "step4_windows_stats.json"
+    out_path = RESULTS_DIR / "step04_windows_stats.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
     print(f"\nResults saved: {out_path}")
@@ -240,7 +240,7 @@ def run_window_sensitivity():
     """
     Sensitivity Analysis for 72-Hour Endpoint Detection Window.
     Proves empirically that 72h is the optimal precision-coverage tradeoff.
-    Saves: results/step19_window_sensitivity.json
+    Saves: results/figures/step19_window_sensitivity.json
     """
     print("=" * 70)
     print("Step 4b: 72-Hour Window Sensitivity Analysis")

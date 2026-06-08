@@ -10,7 +10,7 @@ At inference: for each account with K windows,
 tau_base is optimized on inner validation fold.
 This step computes effective thresholds and applies them during evaluation.
 
-Saves: results/step8_sidak_thresholds.json
+Saves: results/figures/step08_sidak_thresholds.json
 """
 
 import sys
@@ -167,7 +167,7 @@ def main():
         print(f"  {tau_base:.2f}     | {' '.join(vals)}")
 
     # ── 3. Plot ────────────────────────────────────────────────────
-    plot_path = RESULTS_DIR / "step8_sidak_curves.png"
+    plot_path = RESULTS_DIR / "step08_sidak_curves.png"
     plot_sidak_curves(plot_path)
 
     # ── 4. Save results ────────────────────────────────────────────
@@ -192,7 +192,7 @@ def main():
         "K_values_analyzed": list(range(1, 31)),
     }
 
-    out_path = RESULTS_DIR / "step8_sidak_thresholds.json"
+    out_path = RESULTS_DIR / "step08_sidak_thresholds.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
     print(f"\nResults saved: {out_path}")

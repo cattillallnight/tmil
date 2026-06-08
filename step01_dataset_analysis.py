@@ -363,7 +363,7 @@ def main():
         }
     }
 
-    stats_path  = RESULTS_DIR / "step1_dataset_stats.json"
+    stats_path  = RESULTS_DIR / "step01_dataset_stats.json"
     pilot_path  = RESULTS_DIR / "step1_pilot_study.csv"
 
     with open(stats_path, "w") as f:
@@ -435,7 +435,7 @@ def run_cex_source_doc_and_bias_check():
     """
     Part A: Document CEX address sources (generates cex_address_sources.csv).
     Part B: Symmetric bias check for SMALL/MICRO vs PRIMARY accounts.
-    Saves: results/step20_bias_check.json
+    Saves: results/figures/step20_bias_check.json
     """
     import pandas as _pd_s20
     import numpy as _np_s20

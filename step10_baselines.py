@@ -246,133 +246,18 @@ def eval_localization(model, test_recs, gt_data):
             
     return (hit / eval_count) * 100 if eval_count > 0 else 0
 
-def main():
-    print("=" * 70)
-    print("TMIL-ETH: Comprehensive Baseline Comparison (7 Models)")
-    print("=" * 70)
-    
-    feat_path = RESULTS_DIR / "step2_features.pkl"
-    if not feat_path.exists():
-        print("Features not found. Please run step2_feature_extraction.py first.")
-        return
-        
-    print("Loading features...")
-    with open(feat_path, "rb") as f:
-        records = pickle.load(f)
-        
-    gt_path = Path(__file__).parent / "human_ground_truth.json"
-    if gt_path.exists():
-        with open(gt_path) as f:
-            gt_data = json.load(f)
-    else:
-        gt_data = []
-        
-    eval_addrs = {item["account_address"].lower() for item in gt_data}
-    
-    # Split Data
-    test_recs = [r for r in records if r["address"].lower() in eval_addrs]
-    train_pool = [r for r in records if r["address"].lower() not in eval_addrs]
-    
-    phish_pool = [r for r in train_pool if r["label"] == 1]
-    norm_pool = [r for r in train_pool if r["label"] == 0]
-    
-    np.random.seed(42)
-    norm_sample = np.random.choice(norm_pool, size=len(phish_pool)*4, replace=False).tolist()
-    train_val_recs = phish_pool + norm_sample
-    
-    train_recs, val_recs = train_test_split(train_val_recs, test_size=0.2, random_state=42, stratify=[r["label"] for r in train_val_recs])
-    
-    print(f"Train: {len(train_recs)}, Val: {len(val_recs)}, Test (Forensic): {len(test_recs)}\n")
-    
-    results = {}
-    
-    # ---------------------------------------------------------
-    # A. Traditional ML Baselines
-    # ---------------------------------------------------------
-    def get_ml_features(recs):
-        X, Y = [], []
-        dataset = EthBagDataset(recs)
-        for x, bert, y, _ in dataset:
-            mean_feat = torch.mean(x, dim=0).numpy()
-            X.append(mean_feat)
-            Y.append(y.item())
-        return np.array(X), np.array(Y)
-        
-    print("--- [1/7] Training Random Forest ---")
-    X_train, Y_train = get_ml_features(train_recs)
-    X_val, Y_val = get_ml_features(val_recs)
-    
-    rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-    rf.fit(X_train, Y_train)
-    rf_probs = rf.predict_proba(X_val)[:, 1]
-    rf_auc = roc_auc_score(Y_val, rf_probs)
-    rf_f1 = np.max(2 * precision_recall_curve(Y_val, rf_probs)[1] * precision_recall_curve(Y_val, rf_probs)[0] / (precision_recall_curve(Y_val, rf_probs)[1] + precision_recall_curve(Y_val, rf_probs)[0] + 1e-8))
-    results["Random Forest"] = {"AUC": rf_auc, "F1": rf_f1, "Hit@1": "N/A"}
-    
-    print("--- [2/7] Training Gradient Boosting (HistGBM) ---")
-    gbm = HistGradientBoostingClassifier(random_state=42)
-    gbm.fit(X_train, Y_train)
-    gbm_probs = gbm.predict_proba(X_val)[:, 1]
-    gbm_auc = roc_auc_score(Y_val, gbm_probs)
-    gbm_f1 = np.max(2 * precision_recall_curve(Y_val, gbm_probs)[1] * precision_recall_curve(Y_val, gbm_probs)[0] / (precision_recall_curve(Y_val, gbm_probs)[1] + precision_recall_curve(Y_val, gbm_probs)[0] + 1e-8))
-    results["Gradient Boosting"] = {"AUC": gbm_auc, "F1": gbm_f1, "Hit@1": "N/A"}
-    
-    # ---------------------------------------------------------
-    # PyTorch DataLoader
-    # ---------------------------------------------------------
-    train_loader = DataLoader(EthBagDataset(train_recs), batch_size=1, shuffle=True)
-    val_loader = DataLoader(EthBagDataset(val_recs), batch_size=1, shuffle=False)
-    
-    # ---------------------------------------------------------
-    # B. Sequence / Transformer Baselines
-    # ---------------------------------------------------------
-    print("--- [3/7] Training Bi-LSTM ---")
-    lstm_model = train_dl_model(BiLSTM_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
-    lstm_auc, lstm_f1 = eval_dl_model(lstm_model, val_loader, model_type="mil")
-    results["Bi-LSTM"] = {"AUC": lstm_auc, "F1": lstm_f1, "Hit@1": "N/A"}
+def _main_legacy():
+    """
+    DEPRECATED: This function used human_ground_truth.json (archived) and
+    single train/val split without cross-validation. Do NOT use for paper results.
+    Use run_extended_baselines() instead (10 models, 5-Fold CV, authoritative Table 5).
+    """
+    print("[WARNING] _main_legacy() is deprecated. Run run_extended_baselines() instead.")
+    return
 
-    print("--- [4/7] Training BERT4ETH Base ---")
-    bert_model = train_dl_model(BERT4ETH_Baseline(), train_loader, val_loader, epochs=15, model_type="bert")
-    bert_auc, bert_f1 = eval_dl_model(bert_model, val_loader, model_type="bert")
-    results["BERT4ETH Base"] = {"AUC": bert_auc, "F1": bert_f1, "Hit@1": "N/A"}
-
-    # ---------------------------------------------------------
-    # C. MIL Baselines
-    # ---------------------------------------------------------
-    print("--- [5/7] Training Mean-Pooling MIL ---")
-    mean_model = train_dl_model(MeanMIL_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
-    mean_auc, mean_f1 = eval_dl_model(mean_model, val_loader, model_type="mil")
-    results["Mean-MIL"] = {"AUC": mean_auc, "F1": mean_f1, "Hit@1": "N/A"}
-
-    print("--- [6/7] Training Max-Pooling MIL ---")
-    max_model = train_dl_model(MaxMIL_Baseline(), train_loader, val_loader, epochs=15, model_type="mil")
-    max_auc, max_f1 = eval_dl_model(max_model, val_loader, model_type="mil")
-    results["Max-MIL"] = {"AUC": max_auc, "F1": max_f1, "Hit@1": "N/A"}
-    
-    print("--- [7/7] Training ABMIL (Ilse et al. 2018) ---")
-    abmil_model = train_dl_model(GatedAttentionABMIL(), train_loader, val_loader, epochs=15, model_type="mil")
-    abmil_auc, abmil_f1 = eval_dl_model(abmil_model, val_loader, model_type="mil")
-    abmil_hit1 = eval_localization(abmil_model, test_recs, gt_data)
-    results["ABMIL (Ilse 2018)"] = {"AUC": abmil_auc, "F1": abmil_f1, "Hit@1": abmil_hit1}
-    
-    # ---------------------------------------------------------
-    # Output Summary
-    # ---------------------------------------------------------
-    with open(RESULTS_DIR / "step13_baselines_7models.json", "w") as f:
-        json.dump(results, f, indent=2)
-        
-    print("\n" + "="*70)
-    print(f"{'Model':<22} | {'AUC':<10} | {'F1':<10} | {'Hit@1 (%)':<10}")
-    print("-" * 65)
-    for model_name, metrics in results.items():
-        hit = metrics["Hit@1"]
-        hit_str = f"{hit:.2f}" if isinstance(hit, (int, float)) else hit
-        print(f"{model_name:<22} | {metrics['AUC']:<10.4f} | {metrics['F1']:<10.4f} | {hit_str:<10}")
-    print("="*70)
-    print("[OK] Comprehensive 7-Baseline comparison ready!")
 
 if __name__ == "__main__":
-    main()
+    run_extended_baselines()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -524,12 +409,12 @@ def run_extended_baselines():
     """
     Extended 10-model baseline comparison on 35,340 accounts using 5-Fold CV.
     Models: RF, XGBoost, MLP, Bi-LSTM, GRU, Transformer, Mean-MIL, Max-MIL, ABMIL, BERT4ETH-Only.
-    Saves: results/step10_extended_baselines.json  (formerly step24_extended_baselines.json)
+    Saves: results/figures/step10_extended_baselines.json  (formerly step24_extended_baselines.json)
     """
     print("=" * 70)
     print("Step 10b: Extended Baseline Comparison (10 models × 5-Fold CV)")
     print("=" * 70)
-    _features_file = RESULTS_DIR / "step2_features.pkl"
+    _features_file = RESULTS_DIR / "step02_features.pkl"
     if not _features_file.exists():
         print(f"[SKIP] {_features_file} not found."); return
 

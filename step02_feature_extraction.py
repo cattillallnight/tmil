@@ -6,7 +6,7 @@ Builds feature vectors x_i = [C_i || h_i] for each transaction window.
   h_i: 64-dim BERT4ETH embedding
 
 Per-account normalization (not global) — captures relative anomaly.
-Saves: results/step2_features.pkl
+Saves: results/figures/step02_features.pkl
 """
 
 import sys
@@ -197,7 +197,7 @@ def main():
     print(f"  Max n_windows:   {max(n_win_all)}")
 
     # Save
-    out_path = RESULTS_DIR / "step2_features.pkl"
+    out_path = RESULTS_DIR / "step02_features.pkl"
     print(f"\nSaving features to {out_path}...")
     with open(out_path, "wb") as f:
         pickle.dump(all_records, f)
@@ -219,7 +219,7 @@ def main():
         "max_n_windows": int(max(n_win_all)) if n_win_all else 0,
     }
     import json
-    with open(RESULTS_DIR / "step2_summary.json", "w") as f:
+    with open(RESULTS_DIR / "step02_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("\n[OK] Step 2 complete.\n")

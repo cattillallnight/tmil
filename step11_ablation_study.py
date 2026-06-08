@@ -14,7 +14,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
 
 RESULTS_DIR   = Path(__file__).parent / "results"
-FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
+FEATURES_FILE = RESULTS_DIR / "step02_features.pkl"
 
 SEED         = 42
 OUTER_FOLDS  = 5

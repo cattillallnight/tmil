@@ -10,7 +10,7 @@ Protocol (paper §4.2):
   - Full dataset: 4,361 phishing + up to 87,220 normal accounts
   - GPU recommended: RTX A6000 or equivalent
 
-Outputs: results/step9_nested_cv_results.json
+Outputs: results/figures/step09_nested_cv_results.json
 """
 import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -27,7 +27,7 @@ from step07_training import (AccountWindowDataset, collate_fn,
                                        train_one_epoch, evaluate_epoch)
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-FEATURES_FILE = RESULTS_DIR / "step2_features.pkl"
+FEATURES_FILE = RESULTS_DIR / "step02_features.pkl"
 
 SEED = 42
 OUTER_FOLDS  = 5
@@ -69,7 +69,7 @@ def qmetrics(y_true, y_score, tau=0.5):
 
 
 def train_eval(tr, va, l1, l2, device):
-    loss_fn = GatedCompoundLoss(lambda1=l1)
+    loss_fn = GatedCompoundLoss(lambda1=l1, lambda2=l2)
     model   = GatedTMILETH(4, 64).to(device)
     tr_ds = AccountWindowDataset(tr, W=W)
     va_ds = AccountWindowDataset(va, W=W)
@@ -204,7 +204,7 @@ def main():
         },
         "results_by_ratio": all_results,
     }
-    out_path = RESULTS_DIR / "step9_nested_cv_results.json"
+    out_path = RESULTS_DIR / "step09_nested_cv_results.json"
     with open(out_path, "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved: {out_path}")
@@ -217,7 +217,7 @@ if __name__ == "__main__":
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 2: GT-Targeted Nested CV
-# (formerly step23_gt_targeted_cv.py)
+# (formerly step09_gt_targeted_cv.py)
 # Usage: python -c "from step09_nested_cv import run_gt_targeted_cv; run_gt_targeted_cv()"
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -225,7 +225,7 @@ def run_gt_targeted_cv():
     """
     Nested 5-Fold CV variant that explicitly tracks Ground Truth (GT) accounts.
     Reports per-tier detection rates in addition to overall classification metrics.
-    Saves: results/step23_gt_targeted_cv.json
+    Saves: results/figures/step09_gt_targeted_cv.json
     """
     import pickle as _pk23, pandas as _pd23
     from sklearn.model_selection import StratifiedKFold as _SKF23
@@ -251,7 +251,7 @@ def run_gt_targeted_cv():
         import json as _j23; gt_data = _j23.load(f)
     gt_addrs23 = {item["account_address"].lower() for item in gt_data}
 
-    with open(RESULTS_DIR / "step2_features.pkl", "rb") as f:
+    with open(RESULTS_DIR / "step02_features.pkl", "rb") as f:
         records23 = _pk23.load(f)
 
     ph_all = [r for r in records23 if r["label"] == 1]
@@ -279,20 +279,22 @@ def run_gt_targeted_cv():
         te_isgt23 = all_isgt[tei]
 
         model23 = GatedTMILETH(4, 64).to(device)
-        loss_fn23 = GatedCompoundLoss(lambda1=0.3)
+        loss_fn23 = GatedCompoundLoss(lambda1=0.3, lambda2=0.2)
         ds23 = AccountWindowDataset(tr_recs23, W=200)
         ld23 = _DL23(ds23, 64, shuffle=True, collate_fn=collate_fn, num_workers=0)
         model23.freeze_bert()
         o1 = _optim23.AdamW(filter(lambda p: p.requires_grad, model23.parameters()), lr=1e-3)
-        for _ in range(15): train_one_epoch(model23, ld23, loss_fn23, o1, device, 1.0)
+        for _ in range(20): train_one_epoch(model23, ld23, loss_fn23, o1, device, 1.0)
         model23.unfreeze_all()
         o2 = _optim23.AdamW(model23.parameters(), lr=5e-5)
-        sch = _torch23.optim.lr_scheduler.CosineAnnealingLR(o2, T_max=20, eta_min=1e-6)
-        for _ in range(20):
+        sch = _torch23.optim.lr_scheduler.CosineAnnealingLR(o2, T_max=30, eta_min=1e-6)
+        for _ in range(30):
             train_one_epoch(model23, ld23, loss_fn23, o2, device, 1.0); sch.step()
 
         model23.eval()
         scores23 = []
+        preds23 = []
+        from utils import sidak_threshold as _sidak23
         with _torch23.no_grad():
             for rec in te_recs23:
                 hc = _torch23.tensor(rec["hand_crafted"], dtype=_torch23.float32).to(device)
@@ -306,12 +308,15 @@ def run_gt_targeted_cv():
                     p, _ = model23(hw.unsqueeze(0), be.unsqueeze(0))
                     if p.item() > best: best = p.item()
                 scores23.append(best)
+                # Sidak correction for binary prediction
+                tau_eff = _sidak23(0.5, len(rec["windows"]))
+                preds23.append(1 if best >= tau_eff else 0)
         scores23 = _np.array(scores23)
+        b23 = _np.array(preds23)
 
         try:
             fold_auc = float(_auc23(te_lbs23, scores23))
         except: fold_auc = 0.0
-        b23 = (scores23 >= 0.5).astype(int)
         gt_mask23 = (te_lbs23 == 1) & (te_isgt23 == 1)
         gt_det = float(_np.mean(scores23[gt_mask23] > 0.5) * 100) if gt_mask23.sum() > 0 else 0.0
         print(f"  AUC={fold_auc:.4f}  F1={_f1_23(te_lbs23, b23):.4f}  "
@@ -324,7 +329,7 @@ def run_gt_targeted_cv():
     mean_f1_23 = float(_np.mean([r["f1"] for r in fold_results23]))
     print(f"\n  FINAL: AUC={mean_auc23:.4f} ± {_np.std([r['auc'] for r in fold_results23]):.4f}  "
           f"F1={mean_f1_23:.4f}")
-    out23 = RESULTS_DIR / "step23_gt_targeted_cv.json"
+    out23 = RESULTS_DIR / "step09_gt_targeted_cv.json"
     with open(out23, "w", encoding="utf-8") as f:
         import json as _j23b; _j23b.dump({"overall": {"auc_mean": round(mean_auc23, 4),
                                                        "f1_mean": round(mean_f1_23, 4)},
