@@ -256,10 +256,6 @@ def _main_legacy():
     return
 
 
-if __name__ == "__main__":
-    run_extended_baselines()
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 2: Extended Baseline Comparison (10 models × 5-Fold CV)
 # (merged from step24_extended_baselines.py — the authoritative Table 5)
