@@ -373,26 +373,42 @@ def _train_eval_dl_s24(model, tr_recs, te_recs, device):
     for _ in range(_EPOCHS_DL_S24):
         opt.zero_grad()
         for i, rec in enumerate(tr_recs):
-            x    = _get_bag_tensor_s24(rec).to(device)
-            y    = _torch_s24.tensor([[float(rec["label"])]], device=device)
-            prob, _ = model(x)
-            if _torch_s24.isnan(prob).any(): prob = _torch_s24.nan_to_num(prob, nan=0.5)
-            prob = _torch_s24.clamp(prob, 1e-7, 1.0 - 1e-7)
-            wt   = 4.0 if rec["label"] == 1 else 1.0
-            loss = (-wt * (y * _torch_s24.log(prob) + (1-y) * _torch_s24.log(1-prob)).mean()) / 128.0
-            loss.backward()
-            if (i+1) % 128 == 0 or (i+1) == len(tr_recs):
-                _nn_s24.utils.clip_grad_norm_(model.parameters(), 1.0)
-                opt.step(); opt.zero_grad()
-    model.eval(); y_true, y_score = [], []
+    opt = _optim_s24.AdamW(model.parameters(), lr=5e-4)
+    pos_weight = 4.0
+    for ep in range(20):
+        model.train()
+        for r in tr_recs:
+            x = _get_bag_tensor_s24(r, g_mean, g_std).to(device)
+            y = _torch_s24.tensor([[r["label"]]], dtype=_torch_s24.float32).to(device)
+            p, _ = model(x)
+            loss = - (y * _torch_s24.log(p + 1e-8) * pos_weight + (1 - y) * _torch_s24.log(1 - p + 1e-8))
+            opt.zero_grad(); loss.backward(); opt.step()
+    model.eval()
+    y_true, y_score = [], []
     with _torch_s24.no_grad():
-        for rec in te_recs:
-            x = _get_bag_tensor_s24(rec).to(device)
-            prob, _ = model(x)
-            if _torch_s24.isnan(prob).any(): prob = _torch_s24.nan_to_num(prob, nan=0.0)
-            y_score.append(prob.item()); y_true.append(rec["label"])
-    return _np_s24.array(y_true), _np_s24.array(y_score)
+        for r in te_recs:
+            x = _get_bag_tensor_s24(r, g_mean, g_std).to(device)
+            p, _ = model(x)
+            y_true.append(r["label"]); y_score.append(p.item())
+    return y_true, y_score
 
+def _get_ml_data_s24(recs):
+    X, y = [], []
+    for r in recs:
+        hc = _np_s24.mean(r["hand_crafted"], axis=0) if len(r["hand_crafted"]) > 0 else _np_s24.zeros(4)
+        X.append(hc); y.append(r["label"])
+    return _np_s24.array(X), _np_s24.array(y)
+
+def _train_eval_ml_s24(model, tr_recs, te_recs):
+    from sklearn.preprocessing import StandardScaler
+    X_tr, y_tr = _get_ml_data_s24(tr_recs)
+    X_te, y_te = _get_ml_data_s24(te_recs)
+    scaler = StandardScaler()
+    X_tr = scaler.fit_transform(X_tr)
+    X_te = scaler.transform(X_te)
+    model.fit(X_tr, y_tr)
+    p = model.predict_proba(X_te)[:, 1]
+    return y_te, p
 
 def _metrics_s24(y_true, y_score, tau=0.5):
     try: auc = _auc_s24(y_true, y_score)

@@ -104,10 +104,10 @@ def compute_ablation_loss(p_acct, p_window, label, lambda_contrast):
 
 def train_eval_variant(variant_name, tr_recs, te_recs, device, g_mean, g_std):
     print(f"  Training {variant_name}...")
-    lambda_contrast = 0.2
+    lambda_contrast = 0.3
     single_pooling = False
     no_sliding_window = False
-    apply_global_norm = False
+    apply_global_norm = True # Default for Full TMIL-ETH
     
     if variant_name == "No L_contrast":
         lambda_contrast = 0.0
@@ -117,8 +117,8 @@ def train_eval_variant(variant_name, tr_recs, te_recs, device, g_mean, g_std):
         single_pooling = True
     elif variant_name == "No sliding window":
         no_sliding_window = True
-    elif variant_name == "Global normalization":
-        apply_global_norm = True
+    elif variant_name == "No global normalization":
+        apply_global_norm = False
 
     model = AblationGatedAttention().to(device)
     opt = optim.AdamW(model.parameters(), lr=LR_DL, weight_decay=1e-4)
@@ -211,7 +211,7 @@ def main():
         "BCE only",
         "Single pooling",
         "No sliding window",
-        "Global normalization",
+        "No global normalization",
     ]
 
     all_results = {v: {"auc": [], "f1": [], "prec": [], "rec": []} for v in variants}
