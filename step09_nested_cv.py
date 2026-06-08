@@ -69,7 +69,7 @@ def qmetrics(y_true, y_score, tau=0.5):
 
 
 def train_eval(tr, va, l1, l2, device):
-    loss_fn = GatedCompoundLoss(lambda1=l1, lambda2=l2)
+    loss_fn = GatedCompoundLoss(lambda1=l1)
     model   = GatedTMILETH(4, 64).to(device)
     tr_ds = AccountWindowDataset(tr, W=W)
     va_ds = AccountWindowDataset(va, W=W)
@@ -279,7 +279,7 @@ def run_gt_targeted_cv():
         te_isgt23 = all_isgt[tei]
 
         model23 = GatedTMILETH(4, 64).to(device)
-        loss_fn23 = GatedCompoundLoss(lambda1=0.3, lambda2=0.2)
+        loss_fn23 = GatedCompoundLoss(lambda1=0.3)
         ds23 = AccountWindowDataset(tr_recs23, W=200)
         ld23 = _DL23(ds23, 64, shuffle=True, collate_fn=collate_fn, num_workers=0)
         model23.freeze_bert()

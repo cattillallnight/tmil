@@ -82,7 +82,7 @@ def main():
         n_train_norm = min(400, len(train_pool_norm))
         train_recs = rng.choice(train_pool_phish, n_train_phish, replace=False).tolist() + \
                      rng.choice(train_pool_norm, n_train_norm, replace=False).tolist()
-        loss_fn = GatedCompoundLoss(lambda1=0.3, lambda2=0.2)
+        loss_fn = GatedCompoundLoss(lambda1=0.3)
         ds = AccountWindowDataset(train_recs, W=200)
         loader = DataLoader(ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
         model.freeze_bert()

@@ -7,8 +7,8 @@ Architecture:
   - 2-Layer MLP Classifier: Linear(64, 256) → Linear(256, 128) → Linear(128, 1)
 
 Loss (GatedCompoundLoss):
-  L_total = L_BCE + I(y=1) * [lambda1 * L_contrast + lambda2 * L_consistency]
-  Default: lambda1=0.3, lambda2=0.2, margin=0.3
+  L_total = L_BCE + I(y=1) * [lambda1 * L_contrast]
+  Default: lambda1=0.3, margin=0.3
 """
 import torch
 import torch.nn as nn
@@ -121,18 +121,15 @@ class GatedCompoundLoss(nn.Module):
 
     L_BCE         : Binary Cross-Entropy (standard classification loss)
     L_contrast    : Hinge loss — pushes mean phishing score above mean normal score by margin
-    L_consistency : Variance of window scores within phishing accounts
-                    (penalises inconsistent alerting within a burst account)
 
-    CRITICAL: L_contrast and L_consistency are ONLY applied to phishing accounts.
+    CRITICAL: L_contrast is ONLY applied to phishing accounts.
     Normal accounts never see these penalties (phish_mask = y_A == 1).
 
-    Default: lambda1=0.3 (contrast), lambda2=0.2 (consistency), margin=0.3
+    Default: lambda1=0.3 (contrast), margin=0.3
     """
-    def __init__(self, lambda1: float = 0.3, lambda2: float = 0.2, margin: float = 0.3):
+    def __init__(self, lambda1: float = 0.3, margin: float = 0.3):
         super().__init__()
         self.lambda1 = lambda1
-        self.lambda2 = lambda2
         self.margin = margin
 
     def forward(self, p_acct: torch.Tensor, y_A: torch.Tensor) -> Tuple[torch.Tensor, dict]:
@@ -150,14 +147,7 @@ class GatedCompoundLoss(nn.Module):
             l_contrast = F.relu(self.margin - (p_phish - p_normal))
             losses["l_contrast"] = l_contrast.item()
 
-        # L_consistency: variance of phishing window scores should be low
-        # (model should alert consistently across the burst, not just one window)
-        l_consistency = torch.tensor(0.0, device=p_acct.device)
-        if phish_mask.sum() > 1:
-            l_consistency = torch.var(p_acct[phish_mask])
-            losses["l_consistency"] = l_consistency.item()
-
-        l_total = l_bce + self.lambda1 * l_contrast + self.lambda2 * l_consistency
+        l_total = l_bce + self.lambda1 * l_contrast
         losses["l_total"] = l_total.item()
 
         return l_total, losses

@@ -236,7 +236,7 @@ def main():
     # Model + loss
     model = GatedTMILETH(hand_crafted_dim=HAND_DIM, bert_dim=BERT_DIM,
                     proj_dim=64, attn_hidden=128, mlp_hidden=256).to(device)
-    loss_fn = GatedCompoundLoss(lambda1=LAMBDA1, lambda2=LAMBDA2)
+    loss_fn = GatedCompoundLoss(lambda1=LAMBDA1)
 
     print(f"\nModel parameters: {sum(p.numel() for p in model.parameters()):,}")
 

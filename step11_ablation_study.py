@@ -88,16 +88,11 @@ class AblationGatedAttention(nn.Module):
         p_window = torch.sigmoid(self.classifier(h))
         return prob, p_window
 
-def compute_ablation_loss(p_acct, p_window, label, lambda_consist, lambda_contrast):
+def compute_ablation_loss(p_acct, p_window, label, lambda_contrast):
     y = torch.tensor([[float(label)]], device=p_acct.device)
     weight = 4.0 if label == 1 else 1.0
     l_bce = - weight * (y * torch.log(p_acct) + (1.0 - y) * torch.log(1.0 - p_acct)).mean()
     
-    l_consist = torch.tensor(0.0, device=p_acct.device)
-    if label == 1 and lambda_consist > 0:
-        if p_window.shape[0] > 1:
-            l_consist = torch.var(p_window)
-            
     l_contrast = torch.tensor(0.0, device=p_acct.device)
     if label == 1 and lambda_contrast > 0:
         if p_window.shape[0] > 1:
@@ -105,22 +100,18 @@ def compute_ablation_loss(p_acct, p_window, label, lambda_consist, lambda_contra
             p_mean = p_window.mean()
             l_contrast = F.relu(0.3 - (p_max - p_mean))
             
-    return l_bce + lambda_consist * l_consist + lambda_contrast * l_contrast
+    return l_bce + lambda_contrast * l_contrast
 
 def train_eval_variant(variant_name, tr_recs, te_recs, device, g_mean, g_std):
     print(f"  Training {variant_name}...")
-    lambda_consist = 0.3
     lambda_contrast = 0.2
     single_pooling = False
     no_sliding_window = False
     apply_global_norm = False
     
-    if variant_name == "No L_consistency":
-        lambda_consist = 0.0
-    elif variant_name == "No L_contrast":
+    if variant_name == "No L_contrast":
         lambda_contrast = 0.0
     elif variant_name == "BCE only":
-        lambda_consist = 0.0
         lambda_contrast = 0.0
     elif variant_name == "Single pooling":
         single_pooling = True
@@ -144,7 +135,7 @@ def train_eval_variant(variant_name, tr_recs, te_recs, device, g_mean, g_std):
             p_acct, p_window = model(x, single_pooling)
             p_acct = torch.clamp(p_acct, 1e-7, 1.0 - 1e-7)
             
-            loss = compute_ablation_loss(p_acct, p_window, rec["label"], lambda_consist, lambda_contrast)
+            loss = compute_ablation_loss(p_acct, p_window, rec["label"], lambda_contrast)
             loss = loss / float(BATCH_ACCUM)
             loss.backward()
             
@@ -216,12 +207,11 @@ def main():
 
     variants = [
         "Full TMIL-ETH",
-        "No L_consistency",
         "No L_contrast",
         "BCE only",
         "Single pooling",
         "No sliding window",
-        "Global normalization"
+        "Global normalization",
     ]
 
     all_results = {v: {"auc": [], "f1": [], "prec": [], "rec": []} for v in variants}
