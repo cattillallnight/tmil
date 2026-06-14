@@ -64,7 +64,7 @@ class GatedTMILETH(nn.Module):
     No Triple Pooling.
     """
     def __init__(self,
-                 hand_crafted_dim: int = 4,
+                 hand_crafted_dim: int = 5,
                  bert_dim: int = 64,
                  proj_dim: int = 64,
                  attn_hidden: int = 128,

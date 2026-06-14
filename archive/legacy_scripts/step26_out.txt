@@ -1,0 +1,13 @@
+Loading normalized features...
+Evaluating Seed 43...
+
+--- Evaluating Random Feature Model on Tornado Cash (Seed 43) ---
+  Reading phisher_transaction_in.csv...
+  Reading phisher_transaction_out.csv...
+Total TC Cashout Evaluated: 0
+
+==============================================
+RUNNING RANDOM FEATURE ABLATION WITH SEED: 44
+==============================================
+
+Phase 1: Warm-up (Seed 44)
