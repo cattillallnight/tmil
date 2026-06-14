@@ -34,12 +34,12 @@ class CounterpartyTMILETH(nn.Module):
         # 1. Counterparty Embedding Table (trainable!)
         self.cp_embed = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
         
-        # 2. Handcrafted Projection
-        self.hc_norm = nn.LayerNorm(hc_dim)
+        # 2. Handcrafted + BERT Projection (Concatenated 4 + 64 = 68)
+        self.hc_norm = nn.LayerNorm(hc_dim + embed_dim)
         self.hc_proj = nn.Sequential(
-            nn.Linear(hc_dim, 32),
+            nn.Linear(hc_dim + embed_dim, 128),
             nn.ReLU(),
-            nn.Linear(32, embed_dim),
+            nn.Linear(128, embed_dim),
             nn.LayerNorm(embed_dim)
         )
         
@@ -56,16 +56,20 @@ class CounterpartyTMILETH(nn.Module):
             nn.Linear(32, 1)
         )
 
-    def forward(self, hc, cp_ids, mask=None, outbound_mask=None):
+    def forward(self, hc, cp_ids, bert_emb, mask=None, outbound_mask=None):
         """
         hc: [B, W, 4]
         cp_ids: [B, W] (int)
+        bert_emb: [B, W, 64]
         mask: [B, W] (bool)
         outbound_mask: [B, W] (bool)
         """
         # Embeddings
         h_cp = self.cp_embed(cp_ids)        # [B, W, 64]
-        h_hc = self.hc_proj(self.hc_norm(hc)) # [B, W, 64]
+        
+        # Concatenate HC + BERT4ETH (Transaction-Level)
+        hc_bert_cat = torch.cat([hc, bert_emb], dim=-1) # [B, W, 68]
+        h_hc = self.hc_proj(self.hc_norm(hc_bert_cat))  # [B, W, 64]
         
         # Dual-Stream Fusion (Additive)
         h_fused = self.attn_norm(h_cp + h_hc) # [B, W, 64]
@@ -104,13 +108,20 @@ class CounterpartyDataset(Dataset):
             hc = r["hand_crafted"]
             cp_ids = r.get("counterparty_ids", np.zeros(hc.shape[0], dtype=np.int32))
             is_out = r.get("is_outbound", np.ones(hc.shape[0], dtype=bool))
+            bert = r.get("bert_embedding", np.zeros(64, dtype=np.float32))
+            
+            # Handle both Account-Level [64] (legacy) and Transaction-Level [N, 64] (new)
+            if bert.ndim == 1:
+                bert = np.tile(bert, (hc.shape[0], 1))
+                
             wins = r["windows"]
             
             for (start, end) in wins:
                 hc_win = hc[start:end]
                 cp_win = cp_ids[start:end]
                 out_win = is_out[start:end]
-                self.samples.append((hc_win, cp_win, out_win, lbl))
+                bert_win = bert[start:end]
+                self.samples.append((hc_win, cp_win, out_win, bert_win, lbl))
 
     def __len__(self): return len(self.samples)
 
@@ -123,16 +134,18 @@ def collate_fn(batch):
     
     hc_b = np.zeros((B, W, 4), dtype=np.float32)
     cp_b = np.zeros((B, W), dtype=np.longlong)
+    bert_b = np.zeros((B, W, 64), dtype=np.float32)
     y_b = np.zeros(B, dtype=np.float32)
     mask_b = np.zeros((B, W), dtype=bool)
     out_b = np.zeros((B, W), dtype=bool)
     
-    for i, (hc_win, cp_win, out_win, lbl) in enumerate(batch):
+    for i, (hc_win, cp_win, out_win, bert_win, lbl) in enumerate(batch):
         n = hc_win.shape[0]
         n_use = min(n, W)
         hc_b[i, :n_use, :] = hc_win[:n_use]
         cp_b[i, :n_use] = cp_win[:n_use]
         out_b[i, :n_use] = out_win[:n_use]
+        bert_b[i, :n_use, :] = bert_win[:n_use]
         mask_b[i, :n_use] = True
         y_b[i] = lbl
         
@@ -140,6 +153,7 @@ def collate_fn(batch):
         torch.tensor(hc_b),
         torch.tensor(cp_b),
         torch.tensor(out_b),
+        torch.tensor(bert_b),
         torch.tensor(y_b),
         torch.tensor(mask_b)
     )
@@ -151,15 +165,17 @@ def train_epoch(model, loader, optimizer, DEVICE):
     total_loss = 0
     bce = nn.BCEWithLogitsLoss()
     
-    for hc_b, cp_b, out_b, y_b, mask_b in tqdm(loader, desc="Train", leave=False):
+    for hc_b, cp_b, out_b, bert_b, y_b, mask_b in tqdm(loader, desc="Train", leave=False):
         hc_b = hc_b.to(DEVICE)
         cp_b = cp_b.to(DEVICE)
+        bert_b = bert_b.to(DEVICE)
         out_b = out_b.to(DEVICE)
         y_b = y_b.to(DEVICE)
         mask_b = mask_b.to(DEVICE)
         
         optimizer.zero_grad()
-        logits, _ = model(hc_b, cp_b, mask_b, outbound_mask=out_b)
+        
+        logits, attn = model(hc_b, cp_b, bert_b, mask=mask_b, outbound_mask=out_b)
         loss = bce(logits, y_b)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -219,6 +235,10 @@ def main():
         
         hc = rec["hand_crafted"]
         cp_ids = rec.get("counterparty_ids", np.zeros(hc.shape[0], dtype=np.int32))
+        bert = rec.get("bert_embedding", np.zeros(64, dtype=np.float32))
+        if bert.ndim == 1:
+            bert = np.tile(bert, (hc.shape[0], 1))
+            
         wins = rec["windows"]
         
         if hc.shape[0] != len(hashes): continue
@@ -228,16 +248,18 @@ def main():
         for win_idx, (start, end) in enumerate(wins):
             hc_win = hc[start:end]
             cp_win = cp_ids[start:end]
+            bert_win = bert[start:end]
             out_win = rec.get("is_outbound", np.ones(hc.shape[0], dtype=bool))[start:end]
             n = hc_win.shape[0]
             
             hc_t = torch.tensor(hc_win, dtype=torch.float32).unsqueeze(0).to(DEVICE)
             cp_t = torch.tensor(cp_win, dtype=torch.long).unsqueeze(0).to(DEVICE)
+            bert_t = torch.tensor(bert_win, dtype=torch.float32).unsqueeze(0).to(DEVICE)
             out_t = torch.tensor(out_win, dtype=torch.bool).unsqueeze(0).to(DEVICE)
             mask_t = torch.ones((1, n), dtype=torch.bool).to(DEVICE)
             
             with torch.no_grad():
-                _, attn = model(hc_t, cp_t, mask_t, outbound_mask=out_t)
+                _, attn = model(hc_t, cp_t, bert_t, mask=mask_t, outbound_mask=out_t)
             
             attn_scores = attn.squeeze(0).cpu().numpy()
             for i in range(n):

@@ -151,3 +151,89 @@ class GatedCompoundLoss(nn.Module):
         losses["l_total"] = l_total.item()
 
         return l_total, losses
+
+class CounterpartyTMILETH(nn.Module):
+    """
+    Tri-stream architecture using Handcrafted features, Counterparty Embeddings, and Transaction-Level BERT4ETH.
+    """
+    def __init__(self, vocab_size=50001, embed_dim=64, hc_dim=4, use_bert=True, use_cp=True):
+        super().__init__()
+        
+        self.use_bert = use_bert
+        self.use_cp = use_cp
+        
+        # 1. Counterparty Embedding Table (trainable!)
+        if self.use_cp:
+            self.cp_embed = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+        
+        # 2. Handcrafted + BERT Projection
+        in_dim = hc_dim + (embed_dim if self.use_bert else 0)
+        self.hc_norm = nn.LayerNorm(in_dim)
+        self.hc_proj = nn.Sequential(
+            nn.Linear(in_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, embed_dim),
+            nn.LayerNorm(embed_dim)
+        )
+        
+        # 3. Attention Mechanism (Gated)
+        self.attn_norm = nn.LayerNorm(embed_dim)
+        self.attn_V = nn.Linear(embed_dim, 128)
+        self.attn_U = nn.Linear(embed_dim, 128)
+        self.attn_w = nn.Linear(128, 1)
+        
+        # 4. Bag Classifier
+        self.classifier = nn.Sequential(
+            nn.Linear(embed_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, hc, cp_ids, bert_emb, mask=None, outbound_mask=None):
+        """
+        hc: [B, W, 4]
+        cp_ids: [B, W] (int)
+        bert_emb: [B, W, 64]
+        mask: [B, W] (bool)
+        outbound_mask: [B, W] (bool)
+        """
+        # Embeddings
+        if self.use_cp:
+            h_cp = self.cp_embed(cp_ids)        # [B, W, 64]
+        else:
+            h_cp = torch.zeros(hc.shape[0], hc.shape[1], 64, device=hc.device)
+            
+        # Concatenate HC + BERT4ETH (if enabled)
+        if self.use_bert:
+            hc_cat = torch.cat([hc, bert_emb], dim=-1) # [B, W, 68]
+        else:
+            hc_cat = hc # [B, W, 4]
+            
+        h_hc = self.hc_proj(self.hc_norm(hc_cat))  # [B, W, 64]
+        
+        # Dual-Stream Fusion (Additive)
+        h_fused = self.attn_norm(h_cp + h_hc) # [B, W, 64]
+        
+        # Gated Attention
+        A_V = torch.tanh(self.attn_V(h_fused))
+        A_U = torch.sigmoid(self.attn_U(h_fused))
+        attn_scores = self.attn_w(A_V * A_U).squeeze(-1)  # [B, W]
+        
+        if mask is not None:
+            attn_scores = attn_scores.masked_fill(~mask, -1e9)
+            
+        if outbound_mask is not None:
+            # Prevent attention on inbound txs, but avoid NaN if window has NO outbound txs
+            has_outbound = outbound_mask.any(dim=1, keepdim=True)
+            mask_cond = has_outbound & ~outbound_mask
+            attn_scores = attn_scores.masked_fill(mask_cond, -1e9)
+            
+        attn_weights = F.softmax(attn_scores, dim=1)      # [B, W]
+        
+        # Aggregate
+        bag_rep = torch.bmm(attn_weights.unsqueeze(1), h_fused).squeeze(1) # [B, 64]
+        
+        # Classify
+        logits = self.classifier(bag_rep).squeeze(-1)     # [B]
+        
+        return logits, attn_weights
