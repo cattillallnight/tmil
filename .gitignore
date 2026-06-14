@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Datasets and heavy files (CRITICAL: DO NOT PUSH)
+data/
+*.csv
+*.npy
+*.pt
+*.pkl
+*.tfrecord
+*.json
+
+# Exceptions (Files we DO want to keep in the repo)
+!results/main_paper/*.pt
+!requirements.txt
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -15,16 +15,10 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Set
 
 # ─── Path configuration ───────────────────────────────────────────────────────
-BASE_DIR    = Path(__file__).resolve().parent.parent
-if (BASE_DIR / "BERT4ETH").exists():
-    DATA_DIR  = BASE_DIR / "BERT4ETH" / "Data"
-    MODEL_DIR = BASE_DIR / "BERT4ETH" / "Model"
-else:
-    DATA_DIR  = BASE_DIR / "Data"
-    MODEL_DIR = BASE_DIR / "Model"
-
-EMBED_DIR   = MODEL_DIR / "inter_data"
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
+BASE_DIR    = Path(__file__).resolve().parent
+DATA_DIR    = BASE_DIR / "data"
+EMBED_DIR   = DATA_DIR / "embeddings"
+RESULTS_DIR = BASE_DIR / "results"
 
 PHISHER_ACCOUNTS_FILE = DATA_DIR / "phisher_account.txt"
 PHISHER_TX_IN         = DATA_DIR / "phisher_transaction_in.csv"

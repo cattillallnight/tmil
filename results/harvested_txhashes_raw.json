@@ -1,8 +1,0 @@
-{
-  "0xa9059cbb00000000000000000000000000000000000000000000000000000000": {
-    "source": "github_search",
-    "repo": "EIPs",
-    "url": "https://github.com/ethereum/EIPs/issues/67",
-    "title": "ERC: Standard URI scheme with metadata, value and byte code "
-  }
-}

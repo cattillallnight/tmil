@@ -1,8 +1,0 @@
-Configuration,AUC,F1,Precision,Recall,FPR@95%TPR,Gamma (attn alignment),Description
-Full TMIL-ETH,0.8844,0.4976,0.9049,0.3432,0.5487,0.7058,Complete model with triple pooling + compound loss
-No L_consistency,0.9174,0.578,0.8783,0.4307,0.317,0.6519,Remove L_consistency (lambda1=0)
-No L_contrast,0.8697,0.5152,0.8764,0.3648,0.6152,0.7434,Remove L_contrast (lambda2=0)
-BCE only,0.897,0.4975,0.876,0.3474,0.3771,0.76,Binary cross-entropy only (no compound loss)
-Single pooling,0.937,0.5511,0.8659,0.4041,0.1093,0.0,"Attention-only pooling (no z_mean, z_max)"
-No sliding window,0.9694,0.832,0.8758,0.7924,0.1677,0.7261,"Single window (last W transactions, no full sweep)"
-Global normalization,0.9191,0.5154,0.8668,0.3668,0.2537,0.7505,Global z-score normalization instead of per-account
