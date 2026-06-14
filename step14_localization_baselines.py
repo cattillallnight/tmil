@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from utils import RESULTS_DIR
-from step07_evaluate_baseline import load_transactions, PHISHER_TX_IN, PHISHER_TX_OUT
+from step05_evaluate_baseline import load_transactions, PHISHER_TX_IN, PHISHER_TX_OUT
 from step10_ctmil_experiment import CounterpartyDataset, collate_fn
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'

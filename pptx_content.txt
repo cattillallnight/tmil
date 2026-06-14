@@ -1,0 +1,188 @@
+
+--- Slide 1 ---
+MEETING 7
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+Topic : C-TMIL: Counterparty-Aware Temporal Multiple Instance Learning for Phishing Transaction Localization on Ethereum
+PRESENTED BY: TRAN THI THUY QUYEN
+1
+Meeting 6: 06/08/2026
+Contribution proposed → Find ground truth phishing transactions
+Results
+
+--- Slide 2 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+21
+Meeting 6: 06/08/2026
+Result Transaction-level Detection
+Next week:
+Comparision table
+Ablation study
+
+--- Slide 3 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+12
+Meeting 6: 06/08/2026
+Inspiration: Medical MIL
+Bridging BERT4ETH and Medical MIL for Forensic Localization
+Inspired by: Ilse et al., Attention-based 
+Deep Multiple Instance Learning  (ICML 2018)
+Why not train a transaction-level classifier?
+ → The Circularity Problem: We don't have transaction-level labels.
+→ If we use heuristics (e.g., "tx > 10 ETH is bad") to create fake labels, the neural network just memorizes the heuristic and learns nothing new.
+Solution: Multiple Instance Learning (TMIL-ETH)
+Treat the account as a "Bag". Label = Phishing.
+Treat transaction windows as "Instances" (unlabeled).
+Let the Attention mechanism discover the bad windows automatically.
+Research Gap
+Current methods (e.g., BERT4ETH):
+Detect phishing accounts
+Cannot localize suspicious transactions
+Account history
+→ Phishing account
+Account history
+→ Suspicious transaction region
+→ Phishing account
+
+--- Slide 4 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+13
+Meeting 6: 06/08/2026
+Explaining Medical MIL
+Inspired by: Ilse et al., Attention-based 
+Deep Multiple Instance Learning  (ICML 2018)
+1. Instance Feature Matrix (Input)
+Bag: Contains K cell instances.
+Encoder (CNN): Maps each cell to a 500-D vector.
+Input Matrix H: [K, 500].
+
+2. Gated Attention Network
+Assessment (tanh branch): H [K, 500] * V [500, 128] -> tanh = [K, 128].
+Gating (sigmoid branch): H [K, 500] * U [500, 128] -> sigmoid = [K, 128].
+Final Scoring: Multiply combined branches by W_transpose [128, 1] → Softmax.
+Output: Attention weights A [K, 1].
+
+3. Aggregation
+Inputs: Weights A [K, 1] and Original features H [K, 500].
+Dot Product: Transpose A into [1, K] * H [K, 500].
+Output: Bag representation vector z [1, 500].
+
+4. Bag-Level Prediction
+Classifier: Vector z [1, 500] * Weights [500, 1].
+Calculation: [1, 500] * [500, 1] = [1, 1] (A single scalar).
+Output (sigmoid): Squeezes the scalar into a range between 0 and 1.
+bag = torch.Size([1, 10, 1, 28, 28])  
+#                     ↑   ↑   ↑   ↑   ↑
+#                       batch K channel H  W
+
+--- Slide 5 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+What we ADAPT from Medical MIL
+The Flaw in BERT4ETH: 
+ - BERT4ETH uses global [CLS] pooling (or mean pooling). It squashes the whole 60,000 
+ tx sequence into one vector. It destroys spatial coordinates (black box). 
+[UPGRADED FROM MEDICAL MIL]: 
+ - We REMOVE the [CLS] pooling. 
+ - We ADD Gated Attention MIL (Ilse et al., 2018).
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+15
+Meeting 6: 06/08/2026
+What we KEEP from BERT4ETH 
+1. The Token/Address/Time embedding lookup tables. 
+2. The 8-layer Transformer Encoder (Self-Attention). 
+3. The 64-dimensional contextual embeddings output for each transaction. 
+Why? BERT is excellent at capturing complex spatial-temporal behavioral motifs.
+[batch_size, 192]
+
+--- Slide 6 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+Meeting 6: 06/08/2026
+Overall workflow
+{
+  "address": "0x...", 
+  "label": 1,
+  "hand_crafted": np.ndarray,   # Shape: (N, 4)
+  "bert_embedding": np.ndarray, # Shape: (64,)
+  "windows": [(0, 200), (50, 250), ...] # length of K
+}
+
+--- Slide 7 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+16
+Meeting 6: 06/08/2026
+Dataset Preparation: Source Data BERT4ETH
+Feature Vector Construction (68-dim)
+
+Each transaction window is represented by 68-dimensional feature vector:
+[64-dim] BERT4ETH Embedding.
+[4-dim] Hand-crafted Heuristics:
++ z_amount: Z-score of the transaction value relative to that account's own history.
++ density: Number of transactions within ±30 min window (burst indicator).
++ value_ratio: Cumulative IN / (cumulative OUT + ε)= victim funds accumulating.
++ counterparty_novelty: 1 if the counterparty is a first-time address
+Normalization is per-account (Z-score across that account's own transactions), not global.
+
+--- Slide 8 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+17
+Meeting 6: 06/08/2026
+Full-Sequence Sliding Window
+Sliding Window Formulation
+
+Why Sliding Windows?
+A phishing account may have up to 60,410 transactions, the laundering burst (typically 2–5 transactions) is overwhelmed by noise.
+Window Parameters
+· Window size W = 200 transactions
+· Stride S = 50 transactions
+· Coverage guarantee: Each transaction appears in at most floor(W/S) = 4 windows
+· Total windows across dataset: 40,797
+Triple Pooling MIL Architecture
+
+--- Slide 9 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+19
+Meeting 6: 06/08/2026
+7. Šidák FPR Correction
+The FPR Inflation Problem
+Šidák Correction Formula
+Account-level validation: Results by Class Ratio
+
+--- Slide 10 ---
+PRESENTED BY: TRAN THI THUY QUYEN
+2026 CCU/COE INTERNATIONAL INTERNSHIP PROGRAM
+20
+Meeting 6: 06/08/2026
+Why Build a Transaction-Level Ground Truth?
+- Problem: Existing labels (e.g., phisher_account.txt) are Account-Level. They tell us WHO the criminal is, but not WHEN the crime happened.
+- Solution: We must build a Transaction-Level Ground Truth to evaluate Forensic Localization (the model's ability to pinpoint the exact time of the crime).
+The Definition of a Phishing Burst
+1. The Trap (IN): Normal accounts sending ETH INTO the phishing account.
+2. The Laundering (OUT): The phisher sending ETH OUT to Tornado Cash or via massive bulk transfers.
+Phishing Burst Transaction Flow
+LOOP
+True Data Sources
+Base Accounts: The 7,067 phishing accounts and 28,272 normal accounts are loaded exactly from the BERT4ETH/Data/ directory
+The Algorithm Pipeline
+1. Data Ingestion
+Load anchor sets into RAM: phishers, normal_accounts, tornado_endpoints.
+2. Victim Filtering
+Use Pandas isin(): Keep transactions where Sender is Normal AND Receiver is Phisher.
+3. Merging & Sorting
+Merge IN and OUT transactions per phisher.
+Use sort_values(): Order chronologically by Unix Timestamp.
+4. Temporal Clustering
+Calculate time gaps between victim transactions.
+Split into new clusters if gap > 30 days.
+Use max(key=len): Pick the densest cluster. Mark start_tx_idx.
+5. Endpoint Detection
+Slice matrix: Extract OUT-transactions within a strict 72-hour limit.
+Tornado Match: Use isin() to check if To-Address matches Tornado Cash.
+Fallback: Use idxmax() to find the highest ETH transfer. Mark as end_tx_idx.
+6. JSON Output
+Save the final [start_tx_idx, end_tx_idx] boundaries for 2,483 valid accounts into the time_aware_ground_truth.json file.

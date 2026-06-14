@@ -1,0 +1,14 @@
+Ground Truth Generation Funnel (v2.0 - Deduplicated)
+=====================================
+total_phisher_accounts: 5661
+accounts_with_inbound_cluster: 3472
+accounts_with_tornado_match_within_7d: 15
+  high_confidence: 10
+  medium_confidence: 5
+total_GT_windows (merged): 15
+
+Value Matching Differences (abs(tc_val - in_val) / in_val):
+  Min diff: 0.00
+  Median diff: 0.09
+  Mean diff: 19.06
+  Max diff: 245.34

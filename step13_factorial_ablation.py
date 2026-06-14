@@ -12,7 +12,7 @@ import itertools
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from utils import RESULTS_DIR
-from step07_evaluate_baseline import load_transactions, PHISHER_TX_IN, PHISHER_TX_OUT
+from step05_evaluate_baseline import load_transactions, PHISHER_TX_IN, PHISHER_TX_OUT
 from step10_ctmil_experiment import CounterpartyDataset, collate_fn, train_epoch
 from tmil_architecture import CounterpartyTMILETH
 
